@@ -35,7 +35,7 @@ def test_gpt_chat_session_mock_chat():
     assert len(chat.history.data[0]) == 2
     assert "Send 1" in chat.history.data[0].get("content")[0].get("text")
     assert "Extra" in chat.history.data[0].get("content")[1].get("text")
-    chat.history.print()
+    print(chat.history)
 
 def test_gpt_chat_session_mock_save_load_history():
     chat = MockGPTChatSession(api_key="api-key")
@@ -46,7 +46,7 @@ def test_gpt_chat_session_mock_save_load_history():
     chat.load_chat_history(cache_name)
     cache_file_name = chat.get_cache_filename(cache_name)
     assert os.path.exists(cache_file_name)
-    chat.history.print()
+    print(chat.history)
 
 def test_gpt_chat_session_mock_load_history():
     chat = MockGPTChatSession(api_key="api-key")
@@ -58,4 +58,4 @@ def test_gpt_chat_session_mock_load_history():
     assert not os.path.exists(cache_file_name)
     response = chat.chat("Does it make sense for you? :)", max_tokens=10)
     assert response
-    chat.history.print()
+    print(chat.history)

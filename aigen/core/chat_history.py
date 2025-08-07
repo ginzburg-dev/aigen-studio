@@ -32,6 +32,6 @@ class ChatHistory:
     def clear(self) -> None:
         self.data.clear()
 
-    def print(self) -> None:
-        for item in self.data:
-            print(item)
+    def __repr__(self) -> str:
+        return "\n".join(str(item) for item in self.data)
+        

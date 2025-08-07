@@ -42,6 +42,5 @@ class Prompt(ABC):
     def clear(self) -> None:
         ...
 
-    def print(self) -> None:
-        print(f"role: {self.role}")
-        print(f"content: {self.content}")
+    def __repr__(self) -> str:
+        return f"role: {self.role}\ncontent: {self.content}"
