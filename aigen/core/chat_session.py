@@ -1,8 +1,8 @@
 import os
 import uuid
-from aigen.core.constants import DEFAULT_ROLE
-from aigen.core.chat_history import ChatHistory, CACHE_DIR
+from aigen.core.chat_history import ChatHistory
 from aigen.core.prompt import Prompt
+from aigen.core.constants import DEFAULT_ROLE
 from abc import ABC, abstractmethod
 from typing import Any, Optional, List, Union
 

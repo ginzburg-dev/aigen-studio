@@ -1,6 +1,5 @@
 import base64
 import mimetypes
-import os
 
 class ImageEncoder:
     """Encodes images to base64 strings."""

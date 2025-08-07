@@ -2,7 +2,7 @@ import os
 from aigen.gpt_chat_session import GPTChatSession
 from aigen.mock_gpt_chat_session import MockGPTChatSession
 from aigen.core.image_encoder import ImageEncoder
-from aigen.gpt_role import DEFAULT_ROLE, DEFAULT_GPT_ROLE
+from aigen.gpt_role import DEFAULT_GPT_ROLE
 from aigen.gpt_prompt import GPTPrompt
 
 def test_gpt_chat_session_set_prompt():
@@ -19,7 +19,7 @@ def test_gpt_chat_session_add_text():
 
 def test_gpt_chat_session_add_image():
     chat = GPTChatSession(api_key="api-key")
-    image_path = "././example/image_samples/rabbit_pixel_art.png"
+    image_path = "././examples/image_samples/rabbit_pixel_art.png"
     mimic_type = ImageEncoder.get_mime_type(image_path)
     chat.add_image(image_path)
     assert chat.buffer.role == DEFAULT_GPT_ROLE

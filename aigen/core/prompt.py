@@ -1,4 +1,3 @@
-from aigen.core.image_encoder import ImageEncoder
 from aigen.core.constants import DEFAULT_ROLE
 from abc import ABC, abstractmethod
 from typing import Any, Optional, List, Dict, Union

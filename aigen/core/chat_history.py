@@ -4,10 +4,6 @@ from aigen.core.prompt import Prompt
 from aigen.core.file_handler import FileHandler
 from typing import Any, Optional, List, Dict, Union
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CACHE_DIR = os.path.join(BASE_DIR, "cache")
-os.makedirs(CACHE_DIR, exist_ok=True)
-
 class ChatHistory:
     """Handles chat history storage and retrival."""
     def __init__(self) -> None:
