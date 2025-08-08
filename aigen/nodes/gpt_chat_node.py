@@ -9,15 +9,20 @@ class GPTChatNode(NodeBase):
         super().__init__("GPTChat", params)
     
     def run(self, context: Dict):
-        api_key = context['api-key'] if self.params.get('api-key' 'no-api-key') in context else self.params.get('api-key', 'no-api-key')
-        input = self.params.get('input', 'gptbuffer')
-        output = self.params.get('output', 'gptbuffer')
+        api_key = self.params.get('api-key', 'api-key')
+        api_key = context[api_key] if api_key in context else api_key
+        chat_history = self.params.get('chat_history', 'gptbuffer')
+        if chat_history not in context:
+                context[chat_history] = []
+        output = self.params.get('output', "")
+        if output == "":
+            raise ValueError("Output is empty!")
         mode = self.params.get('mode', 'replace')
         max_tokens = self.params.get('max_tokens', 256)
         prompt = self.params.get('prompt', [])
 
         chat = GPTChatSession(api_key=api_key)
-        chat.history.add(context.get(input, []))
+        chat.history.add(context[chat_history])
 
         for item in prompt:
             type = item.get('type')
@@ -25,32 +30,39 @@ class GPTChatNode(NodeBase):
             if type == "image":
                 detailed: bool = item.get('detailed', True)
                 if isinstance(content, str):
-                    images = FileHandler.expand_images(content)
+                    image_path = context[content] if content in context else content
+                    images = FileHandler.expand_images(image_path)
                 elif isinstance(content, list):
                     for i in content:
                         if isinstance(i, str):
-                            images = FileHandler.expand_images(content)
+                            image_path = context[content] if content in context else content
+                            images = FileHandler.expand_images(image_path)
                         else:
                             raise ValueError("Image files not found!")
                 for i in images:
                     chat.add_image(i, detailed=detailed)
             if type == "text":
                 if isinstance(content, str):
-                    chat.add_text(content)
+                    text = context[content] if content in context else content
+                    chat.add_text(text)
                 elif isinstance(content, list):
                     for i in content:
                         if isinstance(i, str):
-                            chat.add_text(i)
+                            text = context[content] if content in context else content
+                            chat.add_text(text)
                         else:
                             raise ValueError("Wrong content format!")
                 else:
                     raise ValueError("Wrong content format!")
-        chat.chat(max_tokens=max_tokens)
+
+        response = chat.chat(max_tokens=max_tokens)
+        
+        context[chat_history] = chat.history.data
 
         if mode == 'append':
             if output not in context:
                 context[output] = []
-            context[output].extend(chat.history.data)
+            context[output].append(response)
         else:
-            context[output] = chat.history.data
+            context[output] = response
 

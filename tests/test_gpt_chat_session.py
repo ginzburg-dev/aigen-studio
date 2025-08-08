@@ -19,7 +19,7 @@ def test_gpt_chat_session_add_text():
 
 def test_gpt_chat_session_add_image():
     chat = GPTChatSession(api_key="api-key")
-    image_path = "././examples/image_samples/rabbit_pixel_art.png"
+    image_path = "././examples/image_samples/palm_pixel_art.png"
     mimic_type = ImageEncoder.get_mime_type(image_path)
     chat.add_image(image_path)
     assert chat.buffer.role == DEFAULT_GPT_ROLE

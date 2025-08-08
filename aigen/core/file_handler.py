@@ -10,8 +10,9 @@ class FileHandler:
     """Handles reading and writing of files and YAML."""
     @staticmethod
     def read_text(file_path: str) -> str:
+        result: str = ""
         with open(file_path,"r") as f:
-            return f.read()
+            return f.read().rstrip('\n') # Removes trailing \n (newline).
     
     @staticmethod
     def wrtie_text(file_path: str, data: str) -> None:

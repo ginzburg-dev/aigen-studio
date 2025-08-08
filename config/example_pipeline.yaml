@@ -1,3 +1,24 @@
+- node: SetVariable
+  params:
+    name: temp_string
+    value: "Example variable"
+    mode: replace
+- node: CopyVariable
+  params:
+    input: temp_string
+    output: temp_string_copy
+    mode: replace
+- node: PrintVariable
+  params:
+    name: temp_string_copy
+- node: ReadFile
+  params:
+    file_path: "././ignore--api-key"
+    output: api-key
+    mode: replace
+- node: PrintVariable
+  params:
+    name: api-key
 - node: GPTChat
   params:
     prompt:
@@ -9,8 +30,36 @@
       - type: image
         content: "././examples/image_samples/*"
         detailed: True
-    api-key: key
+    api-key: api-key # name of var with the key or set the apo-key just here
     max_tokens: 500
-    input: chat_buffer
-    output: chat_buffer
+    chat_history: chat_history_variable
+    output: chat_responce_variable
     mode: replace
+- node: PrintVariable
+  params:
+    name: chat_responce_variable
+- node: SaveFile
+  params:
+    file_path: "././cache/response.txt"
+    input: chat_responce_variable
+- node: ReadFile
+  params:
+    file_path: "././cache/input_text.txt"
+    output: input_text_variable
+    mode: replace
+- node: PrintVariable
+  params:
+    name: input_text_variable
+- node: GPTChat
+  params:
+    prompt:
+      - type: text
+        content: input_text_variable
+    #api-key: key
+    max_tokens: 500
+    chat_history: chat_history_variable
+    output: chat_responce_variable
+    mode: replace
+- node: PrintVariable
+  params:
+    name: chat_responce_variable
