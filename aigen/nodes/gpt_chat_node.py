@@ -4,15 +4,12 @@ from aigen.gpt_prompt import GPTPrompt
 from aigen.core.file_handler import FileHandler
 from typing import Any, Dict, List, Optional, Union
 
-SUPPORTED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif"}
-
 class GPTChatNode(NodeBase):
     def __init__(self, params: Dict) -> None:
         super().__init__("GPTChat", params)
     
     def run(self, context: Dict):
         api_key = context['api-key'] if self.params.get('api-key' 'no-api-key') in context else self.params.get('api-key', 'no-api-key')
-        
         input = self.params.get('input', 'gptbuffer')
         output = self.params.get('output', 'gptbuffer')
         mode = self.params.get('mode', 'replace')
