@@ -40,11 +40,15 @@ Create workflows through config files or an interactive interface, process large
 
 **aigen-studio** supports several ways to run pipelines:
 
-- **CLI runner:**  
-  `python -m aigen.cli.main --config config/instructions.yaml`
+- **CLI runner:**   
+    `python -m aigen.cli.main --config config/instructions.yaml`
 
 - **Python API:**  
-  ```python
-  from aigen.core.pipeline import Pipeline
-  pipeline = Pipeline.from_config("config/instructions.yaml")
-  pipeline.run()
+    ```python
+    from aigen.core.pipeline import Pipeline
+    pipeline = Pipeline.from_config("config/instructions.yaml")
+    pipeline.run()
+
+- **Web GUI:**  
+    `streamlit run aigen/gui/web_gui.py`
+

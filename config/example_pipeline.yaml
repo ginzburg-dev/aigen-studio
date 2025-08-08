@@ -1,0 +1,16 @@
+- node: GPTChat
+  params:
+    prompt:
+      - type: text
+        content: "Describe images."
+      - type: image
+        content: "././examples/image_samples/rabbit_pixel_art.png"
+        detailed: True
+      - type: image
+        content: "././examples/image_samples/*"
+        detailed: True
+    api-key: key
+    max_tokens: 500
+    input: chat_buffer
+    output: chat_buffer
+    mode: replace
