@@ -2,6 +2,7 @@ from aigen.core.node_base import NodeBase
 from aigen.gpt_chat_session import GPTChatSession
 from aigen.gpt_prompt import GPTPrompt
 from aigen.core.file_handler import FileHandler
+from aigen.core.var_parser import replace_vars
 from typing import Any, Dict, List, Optional, Union
 
 class SaveFileNode(NodeBase):
@@ -10,7 +11,9 @@ class SaveFileNode(NodeBase):
     
     def run(self, context: Dict):
         file_path = self.params.get('file_path', "")
+        file_path = replace_vars(file_path, context)
         input = self.params.get('input', "")
+        input = replace_vars(input, context)
 
         if file_path == "":
             raise ValueError("Empty file_path!")

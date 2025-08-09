@@ -2,6 +2,7 @@ from aigen.core.node_base import NodeBase
 from aigen.gpt_chat_session import GPTChatSession
 from aigen.gpt_prompt import GPTPrompt
 from aigen.core.file_handler import FileHandler
+from aigen.core.var_parser import replace_vars
 from typing import Any, Dict, List, Optional, Union
 
 class GPTChatNode(NodeBase):
@@ -10,11 +11,15 @@ class GPTChatNode(NodeBase):
     
     def run(self, context: Dict):
         api_key = self.params.get('api-key', 'api-key')
+        api_key = replace_vars(api_key, context)
         api_key = context[api_key] if api_key in context else api_key
+        
         chat_history = self.params.get('chat_history', 'gptbuffer')
+        chat_history = replace_vars(chat_history, context)
         if chat_history not in context:
                 context[chat_history] = []
         output = self.params.get('output', "")
+        output = replace_vars(output, context)
         if output == "":
             raise ValueError("Output is empty!")
         mode = self.params.get('mode', 'replace')
@@ -30,12 +35,14 @@ class GPTChatNode(NodeBase):
             if type == "image":
                 detailed: bool = item.get('detailed', True)
                 if isinstance(content, str):
+                    content = replace_vars(content, context)
                     image_path = context[content] if content in context else content
                     images = FileHandler.expand_images(image_path)
                 elif isinstance(content, list):
                     for i in content:
                         if isinstance(i, str):
-                            image_path = context[content] if content in context else content
+                            i = replace_vars(i, context)
+                            image_path = context[i] if i in context else i
                             images = FileHandler.expand_images(image_path)
                         else:
                             raise ValueError("Image files not found!")
@@ -43,12 +50,14 @@ class GPTChatNode(NodeBase):
                     chat.add_image(i, detailed=detailed)
             if type == "text":
                 if isinstance(content, str):
+                    content = replace_vars(content, context)
                     text = context[content] if content in context else content
                     chat.add_text(text)
                 elif isinstance(content, list):
                     for i in content:
                         if isinstance(i, str):
-                            text = context[content] if content in context else content
+                            i = replace_vars(i, context)
+                            text = context[i] if i in context else i
                             chat.add_text(text)
                         else:
                             raise ValueError("Wrong content format!")

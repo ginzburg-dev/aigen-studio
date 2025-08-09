@@ -53,7 +53,7 @@ class GPTPrompt(Prompt):
                 allowed = set(type_filter)
             content = [item for item in self.content if item.get("type") in allowed]
 
-        return {"role": role_value, "content": self.content}
+        return {"role": role_value, "content": content}
     
     def clear(self) -> None:
         self.role = DEFAULT_GPT_ROLE

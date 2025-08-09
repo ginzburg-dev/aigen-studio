@@ -1,0 +1,11 @@
+cli.main: argparser
+tests: range_overlap functions to test different types of input
+
+web gui: 
+replace var in all nodes
+batch loop 
+top panel mark differently not to drag it
+switch node - to have options through batch
+save state to file
+out the result - out node
+mark green if success

@@ -50,3 +50,8 @@ class FileHandler:
     def is_supported_image(image_path: str) -> bool:
         ext = os.path.splitext(image_path)[1].lower()
         return ext in SUPPORTED_IMAGE_EXTENSIONS
+    
+    @staticmethod
+    def replace_var(data, ):
+        var_name = match.group(1)  # e.g. "name" or "project"
+        return params.get(var_name, match.group(0))
