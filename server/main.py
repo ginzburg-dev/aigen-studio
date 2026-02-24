@@ -83,7 +83,7 @@ def run_batch(req: BatchReq):
     for i, val in enumerate(req.values):
         # Just literal replace — works for ${var} or {{var}} if you pass correct var_name
         yaml_text_i = req.yaml_text.replace(f"${{{req.var_name}}}", val)\
-                                   .replace(f"{{{{{req.var_name}}}}}", val)
+                                    .replace(f"{{{{{req.var_name}}}}}", val)
 
         steps = yaml.safe_load(yaml_text_i) or []
         with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False) as f:
