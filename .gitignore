@@ -68,9 +68,6 @@ logs/
 .streamlit/
 
 .env
-.env.*
-
-*.env
 
 *.swp
 *.swo
@@ -91,3 +88,5 @@ site/
 node_modules/
 
 htmlcov/
+
+.ruff_cache
