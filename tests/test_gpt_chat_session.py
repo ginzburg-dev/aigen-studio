@@ -23,8 +23,8 @@ def test_gpt_chat_session_add_image():
     mimic_type = ImageEncoder.get_mime_type(image_path)
     chat.add_image(image_path)
     assert chat.buffer.role == DEFAULT_GPT_ROLE
-    assert chat.buffer.content[-1].get("image_url").get("detail") == "low"
-    assert f"data:{mimic_type}" in chat.buffer.content[-1].get("image_url").get("url")
+    assert chat.buffer.content[-1].get("image_url",{}).get("detail") == "low"
+    assert f"data:{mimic_type}" in chat.buffer.content[-1].get("image_url",{}).get("url")
 
 def test_gpt_chat_session_mock_chat():
     chat = MockGPTChatSession(api_key="api-key")
@@ -33,8 +33,8 @@ def test_gpt_chat_session_mock_chat():
     assert response == "Example"
     assert len(chat.history.data) == 2
     assert len(chat.history.data[0]) == 2
-    assert "Send 1" in chat.history.data[0].get("content")[0].get("text")
-    assert "Extra" in chat.history.data[0].get("content")[1].get("text")
+    assert "Send 1" in chat.history.data[0].get("content",[])[0].get("text")
+    assert "Extra" in chat.history.data[0].get("content",[])[1].get("text")
     print(chat.history)
 
 def test_gpt_chat_session_mock_save_load_history():

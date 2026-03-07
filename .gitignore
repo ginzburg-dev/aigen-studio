@@ -8,6 +8,7 @@ __pycache__/
 
 .Python
 env/
+cache/
 venv/
 ENV/
 env.bak/
@@ -68,9 +69,6 @@ logs/
 .streamlit/
 
 .env
-.env.*
-
-*.env
 
 *.swp
 *.swo
@@ -91,3 +89,5 @@ site/
 node_modules/
 
 htmlcov/
+
+.ruff_cache
