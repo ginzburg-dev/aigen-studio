@@ -1,7 +1,7 @@
 import os
 import copy
-from aigen.core.prompt import Prompt
-from aigen.core.file_handler import FileHandler
+from aigen.common.prompt import Prompt
+from aigen.common.file_handler import FileHandler
 from typing import Any, Optional, List, Dict, Union
 
 class ChatHistory:
@@ -9,7 +9,7 @@ class ChatHistory:
     def __init__(self) -> None:
         self.data: List[Dict] = []
 
-    def load_from_yaml(self, path: str = None) -> None:
+    def load_from_yaml(self, path: str) -> None:
         self.clear()
         self.data = FileHandler.read_yaml(path)
         

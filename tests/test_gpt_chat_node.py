@@ -1,4 +1,4 @@
-from aigen.nodes.gpt_chat_node import GPTChatNode
+from aigen.nodes.gpt import GPTChatNode
 from aigen.core.file_handler import FileHandler
 
 #def test_gpt_chat_node_run():

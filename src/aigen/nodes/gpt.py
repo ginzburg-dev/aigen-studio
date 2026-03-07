@@ -1,18 +1,15 @@
-from aigen.core.node_base import NodeBase
+from aigen.nodes import Node
 from aigen.gpt_chat_session import GPTChatSession
-from aigen.gpt_prompt import GPTPrompt
-from aigen.core.file_handler import FileHandler
-from aigen.core.var_parser import replace_vars
+from aigen.prompt.openai import OpenAIPrompt
+from aigen.file_handler import FileHandler
+from aigen.utils import replace_vars
 from typing import Any, Dict, List, Optional, Union
 
-class GPTChatNode(NodeBase):
-    def __init__(self, params: Dict) -> None:
-        super().__init__("GPTChat", params)
+class GPTChatNode(Node):
+    def __init__(self, **params) -> None:
+        super().__init__("GPTChat", **params)
     
     def run(self, context: Dict):
-        api_key = self.params.get('api-key', 'api-key')
-        api_key = replace_vars(api_key, context)
-        api_key = context[api_key] if api_key in context else api_key
         
         chat_history = self.params.get('chat_history', 'gptbuffer')
         chat_history = replace_vars(chat_history, context)

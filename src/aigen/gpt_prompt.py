@@ -1,6 +1,6 @@
-from aigen.core.image_encoder import ImageEncoder
+from aigen.common.image_encoder import ImageEncoder
 from aigen.gpt_role import DEFAULT_GPT_ROLE
-from aigen.core.prompt import Prompt
+from aigen.common.prompt import Prompt
 from typing import Any, Optional, List, Dict, Union
 
 class GPTPrompt(Prompt):

@@ -1,9 +1,9 @@
-from aigen.nodes.gpt_chat_node import GPTChatNode
-from aigen.nodes.set_variable_node import SetVariableNode
-from aigen.nodes.copy_variable_node import CopyVariableNode
-from aigen.nodes.print_variable_node import PrintVariableNode
-from aigen.nodes.save_file_node import SaveFileNode
-from aigen.nodes.read_file_node import ReadFileNode
+from aigen.nodes.gpt import GPTChatNode
+from aigen.nodes.set import SetVariableNode
+from aigen.nodes.copy import CopyVariableNode
+from aigen.nodes.print import PrintVariableNode
+from aigen.nodes.write import SaveFileNode
+from aigen.nodes.read import ReadFileNode
 from typing import Any, Dict, List, Union
 
 NODE_REGISTRY = {

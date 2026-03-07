@@ -1,6 +1,6 @@
-from aigen.core.chat_session import ChatSession
-from aigen.core.chat_history import ChatHistory
-from aigen.core.prompt import Prompt
+from aigen.common.chat_session import ChatSession
+from aigen.common.chat_history import ChatHistory
+from aigen.common.prompt import Prompt
 from aigen.gpt_prompt import GPTPrompt
 from aigen.gpt_role import DEFAULT_GPT_ROLE, ROLE_GPT_ASSISTANT
 from aigen.gpt_model import get_best_gpt_model, validate_gpt_model

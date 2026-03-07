@@ -1,7 +1,7 @@
-from aigen.core.node_base import NodeBase
+from aigen.common.node_base import NodeBase
 from aigen.gpt_chat_session import GPTChatSession
 from aigen.gpt_prompt import GPTPrompt
-from aigen.core.file_handler import FileHandler
+from aigen.common.file_handler import FileHandler
 from typing import Any, Dict, List, Optional, Union
 
 class CopyVariableNode(NodeBase):
