@@ -1,10 +1,10 @@
-import uuid
 from abc import ABC, abstractmethod
 from typing import Any
 
 from pydantic_settings import BaseSettings
 
 from aigen.config import AigenConfig
+
 
 class LLMClient(ABC):
     """Base client for LLM interactions."""
@@ -31,6 +31,4 @@ class LLMClient(ABC):
     @abstractmethod
     def generate(
         self, content: list[dict[str, Any]] | dict[str, Any] | str, **kwargs
-    ) -> str | None:
-        ...
-
+    ) -> str | None: ...

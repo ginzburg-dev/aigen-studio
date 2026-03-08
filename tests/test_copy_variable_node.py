@@ -1,5 +1,5 @@
 from aigen.nodes.copy_variable import CopyVariableNode
-from aigen.common.file_handler import FileHandler
+
 
 def test_copy_variable_node():
     context = {"var1": "Hello, World!"}

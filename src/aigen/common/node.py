@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+
 class Node(ABC):
     def __init__(self, name: str, params: dict[str, Any]) -> None:
         self._name: str = name
@@ -15,5 +16,4 @@ class Node(ABC):
         return self._params
 
     @abstractmethod
-    def run(self, context: dict[str, Any]) -> None:
-        ...
+    def run(self, context: dict[str, Any]) -> None: ...

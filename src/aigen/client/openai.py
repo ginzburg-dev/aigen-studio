@@ -1,10 +1,7 @@
-from http import client
 from typing import Any
-from xml.parsers.expat import model
 
 from aigen.common.llm_client import LLMClient
 from aigen.models import GPTModel, Role, TemperaturePresets
-from aigen.constants import MAX_TOKENS
 
 from openai import OpenAI
 from openai.types import Model
@@ -13,6 +10,7 @@ from openai.types.chat import (
     ChatCompletionSystemMessageParam,
     ChatCompletionAssistantMessageParam,
 )
+
 
 class OpenAIClient(LLMClient):
     def __init__(self, model: str, max_tokens: int) -> None:
@@ -24,24 +22,24 @@ class OpenAIClient(LLMClient):
         return [m for m in models]
 
     def _format_message(self, msg: dict[str, Any]) -> Any:
-            role = msg.get("role")
-            if role == Role.USER.value:
-                return ChatCompletionUserMessageParam(**msg)
-            elif role == Role.SYSTEM.value:
-                return ChatCompletionSystemMessageParam(**msg)
-            elif role == Role.ASSISTANT.value:
-                return ChatCompletionAssistantMessageParam(**msg)
-            else:
-                raise ValueError(f"Unknown role: {role}")
+        role = msg.get("role")
+        if role == Role.USER.value:
+            return ChatCompletionUserMessageParam(**msg)
+        elif role == Role.SYSTEM.value:
+            return ChatCompletionSystemMessageParam(**msg)
+        elif role == Role.ASSISTANT.value:
+            return ChatCompletionAssistantMessageParam(**msg)
+        else:
+            raise ValueError(f"Unknown role: {role}")
 
     def generate(
-            self, content: list[dict[str, Any]] | dict[str, Any] | str, **kwargs
+        self, content: list[dict[str, Any]] | dict[str, Any] | str, **kwargs
     ) -> str | None:
         """Generates a response from the OpenAI API based on the provided content.
-            Args:
-                **kwargs: 
-                max_tokens: The maximum number of tokens to generate.
-                temperature: The temperature for the generation.
+        Args:
+            **kwargs:
+            max_tokens: The maximum number of tokens to generate.
+            temperature: The temperature for the generation.
         """
 
         if not self._client:
@@ -57,6 +55,6 @@ class OpenAIClient(LLMClient):
             model=kwargs.get("model") or self.model or GPTModel.best().value,
             messages=formatted_messages,
             max_tokens=kwargs.get("max_tokens") or self._max_tokens,
-            temperature=kwargs.get("temperature", TemperaturePresets.GENERAL.value)
+            temperature=kwargs.get("temperature", TemperaturePresets.GENERAL.value),
         )
         return response.choices[0].message.content

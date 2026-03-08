@@ -1,11 +1,9 @@
-from dataclasses import dataclass
 from pathlib import Path
 import uuid
 from typing import Any
 
 from aigen.common.file_handler import FileHandler
 from aigen.common.prompt import Prompt
-from aigen.common.llm_client import LLMClient
 from aigen.config import AigenConfig
 
 

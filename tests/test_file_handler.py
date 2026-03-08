@@ -1,6 +1,5 @@
-from pathlib import Path
-
 from aigen.common.file_handler import FileHandler
+
 
 def test_file_handler():
     images = FileHandler.search_images("././examples/image_samples/")

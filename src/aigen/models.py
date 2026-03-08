@@ -1,10 +1,4 @@
 from enum import Enum
-from http import client
-from os import path
-from openai import OpenAI
-from pydantic import BaseModel
-
-from typing import Any
 
 
 class Role(str, Enum):
@@ -18,23 +12,23 @@ class GPTModel(str, Enum):
     GPT_5_2 = "gpt-5.2"
     GPT_5_1 = "gpt-5.1"
     GPT_5 = "gpt-5"
-    
+
     # Current flagship
     GPT_4O = "gpt-4o"
     GPT_4O_MINI = "gpt-4o-mini"
-    
+
     # Previous flagship
     GPT_4_TURBO = "gpt-4-turbo"
     GPT_4 = "gpt-4"
-    
+
     # Earlier versions
     GPT_35_TURBO = "gpt-3.5-turbo"
-    
+
     # Reasoning models
     O1 = "o1"
     O1_MINI = "o1-mini"
     O3_MINI = "o3-mini"
-    
+
     # Specialized
     DALL_E_3 = "dall-e-3"
     DALL_E_2 = "dall-e-2"
@@ -49,11 +43,11 @@ class GPTModel(str, Enum):
         return model in [m.value for m in GPTModel]
 
     @classmethod
-    def best(cls) -> GPTModel:
+    def best(cls) -> "GPTModel":
         return cls(GPTModel.GPT_5_2)
 
     @staticmethod
-    def get(model: str) -> GPTModel:
+    def get(model: str) -> "GPTModel":
         if model and GPTModel.validate(model):
             return GPTModel(model)
         return GPTModel.best()
