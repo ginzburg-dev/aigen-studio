@@ -2,7 +2,7 @@ from enum import Enum
 from http import client
 from os import path
 from openai import OpenAI
-from pydantic import B
+from pydantic import BaseModel
 
 from typing import Any
 

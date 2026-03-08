@@ -1,8 +1,8 @@
 from typing import Any
 
 from aigen.models import Role
-from aigen.image_encoder import ImageEncoder
-from aigen.prompt.prompt import Prompt
+from aigen.common.image_encoder import ImageEncoder
+from aigen.common.prompt import Prompt
 
 class OpenAIPrompt(Prompt):
     def __init__(self,

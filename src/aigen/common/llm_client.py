@@ -6,23 +6,23 @@ from pydantic_settings import BaseSettings
 
 from aigen.config import AigenConfig
 
-class LLM(ABC):
+class LLMClient(ABC):
     """Base client for LLM interactions."""
 
     _config = AigenConfig()
 
     def __init__(self, model: str, max_tokens: int) -> None:
-        self._model = model
-        self._client = None
-        self._max_tokens = max_tokens
+        self._model: str = model
+        self._client: Any | None = None
+        self._max_tokens: int = max_tokens
 
     @property
     def model(self) -> str:
         return self._model
 
-    @property
-    def client(self) -> Any:
-        return self._client
+    @model.setter
+    def model(self, value: str) -> None:
+        self._model = value
 
     @property
     def config(self) -> BaseSettings:

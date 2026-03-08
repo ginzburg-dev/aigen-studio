@@ -2,8 +2,7 @@ from http import client
 from typing import Any
 from xml.parsers.expat import model
 
-from aigen.client.llm import LLM
-from aigen.gpt_model import validate_gpt_model
+from aigen.common.llm_client import LLMClient
 from aigen.models import GPTModel, Role, TemperaturePresets
 from aigen.constants import MAX_TOKENS
 
@@ -15,17 +14,14 @@ from openai.types.chat import (
     ChatCompletionAssistantMessageParam,
 )
 
-class OpenAIClient(LLM):
-    def __init__(
-            self,
-            model: str = GPTModel.GPT_5_2.value,
-            max_tokens: int = MAX_TOKENS
-    ) -> None:
+class OpenAIClient(LLMClient):
+    def __init__(self, model: str, max_tokens: int) -> None:
         super().__init__(model=model, max_tokens=max_tokens)
         self._client = OpenAI(api_key=getattr(self.config, "openai_api_key"))
 
     def list_models(self) -> list[Model]:
-        return [m for m in self._client.models.list().data]
+        models = self._client.models.list().data if self._client else []
+        return [m for m in models]
 
     def _format_message(self, msg: dict[str, Any]) -> Any:
             role = msg.get("role")
@@ -47,6 +43,9 @@ class OpenAIClient(LLM):
                 max_tokens: The maximum number of tokens to generate.
                 temperature: The temperature for the generation.
         """
+
+        if not self._client:
+            raise ValueError("OpenAI client is not initialized.")
 
         if isinstance(content, str):
             content = [{"content": content, "role": Role.USER.value}]

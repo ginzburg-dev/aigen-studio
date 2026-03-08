@@ -1,5 +1,5 @@
 # server/main.py
-from aigen.pipeline import process_actions
+from aigen.common.pipeline import process_actions
 from aigen.core.file_handler import FileHandler
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware

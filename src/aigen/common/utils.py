@@ -10,3 +10,7 @@ def replace_vars(template: str, params: dict, pattern=r"\$\{(\w+)\}") -> str:
 def find_vars(template: str, pattern=r"\$\{(\w+)\}") -> list[str]:
     """Return a list of variable names found in the template."""
     return re.findall(pattern, template)
+
+def format_string(template: str, params: dict) -> str:
+    """Format the template string with the given parameters."""
+    return template.format(**params)

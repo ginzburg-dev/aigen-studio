@@ -1,15 +1,23 @@
-from aigen.nodes import Node
-from aigen.gpt_chat_session import GPTChatSession
+from aigen.common import prompt
+from aigen.common.node import Node
+from aigen.common.chat_session import ChatSession
 from aigen.prompt.openai import OpenAIPrompt
-from aigen.file_handler import FileHandler
-from aigen.utils import replace_vars
+from aigen.common.file_handler import FileHandler
+from aigen.common.utils import replace_vars
 from typing import Any, Dict, List, Optional, Union
 
 class GPTChatNode(Node):
-    def __init__(self, **params) -> None:
-        super().__init__("GPTChat", **params)
-    
-    def run(self, context: Dict):
+    def __init__(
+            self,
+            chat_session_id: str | None = None,
+            model: str | None = None,
+            max_tokens: int | None = None,
+            temperature: float | None = None,
+            use_cache: bool = False,
+        ) -> None:
+        super().__init__("GPTChat", **{'model': model, 'max_tokens': max_tokens, 'mode': mode, 'prompt': prompt})
+
+    def run(self, context: dict[str, Any]) -> None:
         
         chat_history = self.params.get('chat_history', 'gptbuffer')
         chat_history = replace_vars(chat_history, context)

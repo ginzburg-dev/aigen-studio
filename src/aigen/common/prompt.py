@@ -1,12 +1,15 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+from aigen.models import Role
+
 
 class Prompt(ABC):
     """Builds prompts for text and images."""
 
     def __init__(self,
             role: str,
+            *,
             text: str | None = None,
             image_path: str | None = None
     ) -> None:
@@ -26,14 +29,6 @@ class Prompt(ABC):
     def role(self, value: str) -> None:
         self._role = value
 
-    @property
-    def content(self) -> list[dict[str, Any]]:
-        return self._content
-
-    @content.setter
-    def content(self, value: list[dict[str, Any]]) -> None:
-        self._content = value
-
     @abstractmethod
     def add_text(self, text: str) -> None:
         ...
@@ -42,7 +37,14 @@ class Prompt(ABC):
     def add_image(self, image_path: str, detailed = True) -> None:
         ...
 
+    def to_dict(self, type_filter: str | list[str] | None = None) -> list[dict[str, Any]]:
+        """Compile prompt as a dict, optionally filtering by type."""
+        if type_filter == None:
+            return self._content
+        allowed = {type_filter} if isinstance(type_filter, str) else set(type_filter)
+        return [item for item in self._content if item.get("type") in allowed]
+
     def clear(self) -> None:
-        self._role = ""
+        self._role = Role.USER.value
         self._content = []
 

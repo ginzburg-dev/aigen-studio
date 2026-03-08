@@ -2,7 +2,7 @@
 # main loop
 
 from aigen.core.file_handler import FileHandler
-from aigen.pipeline import process_actions
+from aigen.common.pipeline import process_actions
 from typing import Any, Optional, Union, List, Dict
 
 def main():

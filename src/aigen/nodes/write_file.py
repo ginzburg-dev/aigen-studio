@@ -6,9 +6,9 @@ from aigen.common.var_parser import replace_vars
 from typing import Any, Dict, List, Optional, Union
 
 class SaveFileNode(NodeBase):
-    def __init__(self, params: Dict) -> None:
-        super().__init__("SaveFile", params)
-    
+    def __init__(self, input: str, filepath: str) -> None:
+        super().__init__("SaveFile", {"file_path": filepath, "input": input })
+
     def run(self, context: Dict):
         file_path = self.params.get('file_path', "")
         file_path = replace_vars(file_path, context)
@@ -19,5 +19,5 @@ class SaveFileNode(NodeBase):
             raise ValueError("Empty file_path!")
         if input not in context:
             raise ValueError("Variable input does not exist!")
-        
-        FileHandler.wrtie_text(file_path, context[input])
+
+        FileHandler.write_text(file_path, context[input])

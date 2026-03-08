@@ -12,4 +12,4 @@ check-format:
 	uv run ruff check --no-fix src tests
 
 test:
-	uv run pytest
+	PYTHONPATH=src uv run pytest

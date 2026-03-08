@@ -1,5 +1,5 @@
-from aigen.gpt_prompt import GPTPrompt
+from aigen.prompt.openai import OpenAIPrompt
 
 def test_gpt_prompt_init():
-    prompt = GPTPrompt(text="test")
+    prompt = OpenAIPrompt(text="test", role="user")
     print(prompt)
