@@ -10,8 +10,9 @@ class ReadFileNode(Node):
         super().__init__("ReadFile", params)
 
     def run(self, context: dict[str, Any]) -> None:
-        filepath = self.params.get("filepath", "")
-        output = self.params.get("output")
+        params = self.format_params(context)
+        filepath = params.get("filepath", "")
+        output = params.get("output")
 
         if not output:
             raise ValueError("Output variable name cannot be empty.")

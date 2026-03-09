@@ -8,7 +8,8 @@ class PrintVariableNode(Node):
         super().__init__("PrintVariable", params)
 
     def run(self, context: dict[str, Any]):
-        input_var = self.params.get("input")
+        params = self.format_params(context)
+        input_var = params.get("input")
         if input_var is None:
             raise ValueError("Empty variable name.")
         if input_var not in context:

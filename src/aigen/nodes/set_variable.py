@@ -2,14 +2,14 @@ from typing import Any
 
 from aigen.common.node import Node
 
-
 class SetVariableNode(Node):
-    def __init__(self, name: str, value: str) -> None:
-        super().__init__("SetVariable")
-        self._name = name
-        self._value = value
+    def __init__(self, params: dict[str, Any]) -> None:
+        super().__init__("SetVariable", params)
 
     def run(self, context: dict[str, Any]) -> None:
-        if not self._name:
+        params = self.format_params(context)
+        name = params.get("name")
+        value = params.get("value", "")
+        if not name:
             raise ValueError("Incorrect name. Name cannot be empty.")
-        context[self._name] = self._value
+        context[name] = value

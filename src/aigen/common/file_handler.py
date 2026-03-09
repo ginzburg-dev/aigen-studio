@@ -31,10 +31,10 @@ class FileHandler:
             yaml.dump(data, f, default_flow_style=False)
 
     @staticmethod
-    def search_images(image_path: str) -> list[str]:
+    def search_images(image_dir_path: str) -> list[str]:
         """Find image files in a directory"""
         images = sorted(
-            Path(image_path).rglob("*"),
+            Path(image_dir_path).rglob("*"),
             key=lambda p: str(p),
             reverse=True,
         )

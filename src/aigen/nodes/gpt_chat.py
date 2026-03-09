@@ -1,87 +1,108 @@
+from pathlib import Path
+
 from aigen.common import prompt
 from aigen.common.node import Node
+from aigen.common.chat_session import ChatSession
+from aigen.prompt.openai import OpenAIPrompt
+from aigen.client.openai import OpenAIClient
 from aigen.common.file_handler import FileHandler
 from aigen.common.utils import replace_vars
-from typing import Any
+from typing import Any, Dict, List, Optional, Union
+
+import structlog
+
+LOGGER = structlog.get_logger(__name__)
 
 
 class GPTChatNode(Node):
-    def __init__(
-        self,
-        chat_session_id: str | None = None,
-        model: str | None = None,
-        max_tokens: int | None = None,
-        temperature: float | None = None,
-        use_cache: bool = False,
-    ) -> None:
-        super().__init__(
-            "GPTChat",
-            **{
-                "model": model,
-                "max_tokens": max_tokens,
-                "mode": mode,
-                "prompt": prompt,
-            },
-        )
+    def __init__(self, **params) -> None:
+        super().__init__("GPTChat", **params)
+        self._chat_sessions = ChatSession()
 
     def run(self, context: dict[str, Any]) -> None:
-        chat_history = self.params.get("chat_history", "gptbuffer")
-        chat_history = replace_vars(chat_history, context)
-        if chat_history not in context:
-            context[chat_history] = []
-        output = self.params.get("output", "")
-        output = replace_vars(output, context)
-        if output == "":
-            raise ValueError("Output is empty!")
-        mode = self.params.get("mode", "replace")
-        max_tokens = self.params.get("max_tokens", 256)
-        prompt = self.params.get("prompt", [])
+        params = self.format_params(context)
 
-        chat = GPTChatSession(api_key=api_key)
-        chat.history.add(context[chat_history])
+        client = OpenAIClient()
+        chat_history_key = params.get("input")
+        model = params.get("model")
+        model = params.get("temperature")
+        max_tokens = params.get("max_tokens")
+        prompt = params.get("prompt", [])
+        output = params.get("output")
+        if not output:
+            raise ValueError("Output is empty.")
+        
+        if chat_history_key:
+            if Path(chat_history_key).exists():
+                self._chat_sessions.load_from_file(chat_history_key)
+                LOGGER.info(
+                    "Load GPTChat history from file",
+                    filename=chat_history_key
+                )
+            else:
+                if chat_history_key not in context:
+                    context[chat_history_key] = []
+                chat_history = context[chat_history_key]
+                self._chat_sessions.set_history(chat_history)
 
+        def _resolve_image_paths(image_path: str) -> list[str]:
+            images = []
+            if Path(image_path).is_dir():
+                images = FileHandler.search_images(image_path)
+            elif Path(image_path).is_file():
+                images = [image_path]
+            return images
+
+        _prompt = OpenAIPrompt()
         for item in prompt:
             type = item.get("type")
             content = item.get("content")
             if type == "image":
                 detailed: bool = item.get("detailed", True)
+                images = []
                 if isinstance(content, str):
-                    content = replace_vars(content, context)
                     image_path = context[content] if content in context else content
-                    images = FileHandler.expand_images(image_path)
+                    images = _resolve_image_paths(image_path)
                 elif isinstance(content, list):
                     for i in content:
                         if isinstance(i, str):
-                            i = replace_vars(i, context)
                             image_path = context[i] if i in context else i
-                            images = FileHandler.expand_images(image_path)
+                            images = _resolve_image_paths(image_path)
                         else:
-                            raise ValueError("Image files not found!")
+                            raise ValueError("Wrong content format.")
+                else:
+                    raise ValueError("Wrong content format.")
                 for i in images:
-                    chat.add_image(i, detailed=detailed)
+                    _prompt.add_image(i, detailed=detailed)
+
             if type == "text":
                 if isinstance(content, str):
-                    content = replace_vars(content, context)
                     text = context[content] if content in context else content
-                    chat.add_text(text)
+                    _prompt.add_text(text)
                 elif isinstance(content, list):
                     for i in content:
                         if isinstance(i, str):
                             i = replace_vars(i, context)
                             text = context[i] if i in context else i
-                            chat.add_text(text)
+                            _prompt.add_text(text)
                         else:
-                            raise ValueError("Wrong content format!")
+                            raise ValueError("Wrong content format.")
                 else:
-                    raise ValueError("Wrong content format!")
+                    raise ValueError("Wrong content format.")
 
-        response = chat.chat(max_tokens=max_tokens)
-
+        def _resolve_temperature(temperature: str | int):
+            if isinstance
+        response = client.generate(
+            content=self._chat_sessions.history + _prompt.to_dict(),
+            max_tokens=max_tokens,
+            temperature=)
+        
         context[chat_history] = chat.history.data
 
-        if mode == "append":
+        if mode == 'append':
             if output not in context:
                 context[output] = []
             context[output].append(response)
         else:
             context[output] = response
+

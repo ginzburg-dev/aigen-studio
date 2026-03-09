@@ -12,15 +12,16 @@ class CopyVariableNode(Node):
         super().__init__("Copy", params)
 
     def run(self, context: dict[str, Any]) -> None:
-        input = self.params.get("input")
-        output = self.params.get("output")
+        params = self.format_params(context)
+        source = params.get("input")
+        target = params.get("output")
 
-        if not input:
+        if not source:
             raise ValueError("Input variable name cannot be empty.")
-        if not output:
+        if not target:
             raise ValueError("Output variable name cannot be empty.")
-        if input not in context:
-            raise ValueError(f"Input variable '{input}' does not exist in context.")
+        if source not in context:
+            raise ValueError(f"Input variable '{source}' does not exist in context.")
 
-        context[output] = context[input]
-        LOGGER.info(f"Copied variable '{input}' to '{output}'")
+        context[target] = context[source]
+        LOGGER.info(f"Copied variable '{source}' to '{target}'")
