@@ -10,6 +10,7 @@ def test_node_registry():
     assert "GPTChat" in NODE_REGISTRY
     assert "PrintVariable" in NODE_REGISTRY
     assert "ReadFile" in NODE_REGISTRY
+    assert "ReplaceBetween" in NODE_REGISTRY
     assert "SetVariable" in NODE_REGISTRY
     assert "WriteFile" in NODE_REGISTRY
     print(NODE_REGISTRY)

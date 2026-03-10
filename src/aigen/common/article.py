@@ -17,6 +17,7 @@ def read_article_contexts_from_csv(
 
     path_keys = ("article_path", "path", "article")
     images_keys = ("images_path", "images_dir", "images_folder", "images")
+    template_keys = ("template_path", "template", "html_template", "template_file")
     instruction_keys = ("instruction", "instructions", "instruction_name")
     startup_prompt_files = (
         "startup_prompt.txt",
@@ -49,9 +50,13 @@ def read_article_contexts_from_csv(
             if not article_path_value:
                 continue
 
-            article_dir = Path(article_path_value)
+            article_dir = Path(article_path_value).expanduser()
             if not article_dir.is_absolute():
-                article_dir = (csv_file.parent / article_dir).resolve()
+                by_cwd = (Path.cwd() / article_dir).resolve()
+                by_csv = (csv_file.parent / article_dir).resolve()
+                article_dir = by_cwd if by_cwd.exists() else by_csv
+            else:
+                article_dir = article_dir.resolve()
 
             context: dict[str, Any] = {
                 "article_path": str(article_dir),
@@ -68,11 +73,40 @@ def read_article_contexts_from_csv(
             if images_path_value:
                 candidate = Path(images_path_value)
                 if not candidate.is_absolute():
+                    by_cwd = (Path.cwd() / candidate).resolve()
                     by_article = (article_dir / candidate).resolve()
                     by_csv = (csv_file.parent / candidate).resolve()
-                    candidate = by_article if by_article.exists() else by_csv
+                    if by_cwd.exists():
+                        candidate = by_cwd
+                    elif by_article.exists():
+                        candidate = by_article
+                    else:
+                        candidate = by_csv
                 if candidate.exists():
                     context["images_path"] = str(candidate)
+
+            template_path_value = None
+            for key in template_keys:
+                value = normalized.get(key.lower())
+                if value:
+                    template_path_value = value.strip()
+                    break
+
+            if template_path_value:
+                candidate = Path(template_path_value).expanduser()
+                if not candidate.is_absolute():
+                    by_cwd = (Path.cwd() / candidate).resolve()
+                    by_article = (article_dir / candidate).resolve()
+                    by_csv = (csv_file.parent / candidate).resolve()
+                    if by_cwd.exists():
+                        candidate = by_cwd
+                    elif by_article.exists():
+                        candidate = by_article
+                    else:
+                        candidate = by_csv
+                else:
+                    candidate = candidate.resolve()
+                context["template_path"] = str(candidate)
 
             instruction_value = None
             for key in instruction_keys:

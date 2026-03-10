@@ -1,3 +1,7 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "aigen-studio"
 version = "0.1.0"
@@ -25,3 +29,9 @@ markers = [
 dev = [
     "pytest>=9.0.2",
 ]
+
+[project.scripts]
+aigen-article-generator = "aigen.cli.article_generator:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/aigen"]

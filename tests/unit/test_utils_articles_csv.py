@@ -12,7 +12,7 @@ def test_read_article_contexts_from_csv(tmp_path):
     article_dir = articles_root / "article-001"
     images_dir = article_dir / "images"
     images_dir.mkdir(parents=True)
-    (article_dir / "initial_instructions.txt").write_text(
+    (article_dir / "startup_prompt.txt").write_text(
         "Use concise tone.", encoding="utf-8"
     )
 
@@ -26,7 +26,7 @@ def test_read_article_contexts_from_csv(tmp_path):
     assert len(contexts) == 1
     assert contexts[0]["article_name"] == "article-001"
     assert "images_path" not in contexts[0]
-    assert contexts[0]["initial_instructions"] == "Use concise tone."
+    assert contexts[0]["startup_prompt"] == "Use concise tone."
 
 
 def test_read_article_contexts_from_csv_with_explicit_images_path(tmp_path):
@@ -126,3 +126,53 @@ def test_read_article_contexts_from_csv_with_instruction_column_and_base_dir(tmp
     assert len(contexts) == 1
     assert contexts[0]["article_name"] == "article-005"
     assert contexts[0]["instruction_path"] == str(expected_instruction.resolve())
+
+
+def test_read_article_contexts_prefers_cwd_relative_path_if_exists(
+    tmp_path, monkeypatch
+):
+    monkeypatch.chdir(tmp_path)
+
+    article_dir = tmp_path / "examples" / "articles" / "article-006"
+    article_dir.mkdir(parents=True)
+    csv_dir = tmp_path / "examples" / "articles"
+    csv_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = csv_dir / "articles.csv"
+
+    with open(csv_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["Article Path"])
+        writer.writeheader()
+        writer.writerow({"Article Path": "examples/articles/article-006"})
+
+    contexts = read_article_contexts_from_csv(str(csv_path))
+    assert len(contexts) == 1
+    assert contexts[0]["article_path"] == str(article_dir.resolve())
+    assert contexts[0]["article_name"] == "article-006"
+
+
+def test_read_article_contexts_from_csv_with_template_path_column(tmp_path):
+    article_dir = tmp_path / "article-007"
+    article_dir.mkdir(parents=True)
+    template_dir = tmp_path / "templates"
+    template_dir.mkdir(parents=True)
+    template_file = template_dir / "artcabbage_article_template.htm"
+    template_file.write_text("<html></html>\n", encoding="utf-8")
+
+    csv_path = tmp_path / "articles.csv"
+    with open(csv_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(
+            f, fieldnames=["Article Path", "Images", "Template Path"]
+        )
+        writer.writeheader()
+        writer.writerow(
+            {
+                "Article Path": "article-007",
+                "Images": "",
+                "Template Path": "templates/artcabbage_article_template.htm",
+            }
+        )
+
+    contexts = read_article_contexts_from_csv(str(csv_path))
+    assert len(contexts) == 1
+    assert contexts[0]["article_name"] == "article-007"
+    assert contexts[0]["template_path"] == str(template_file.resolve())

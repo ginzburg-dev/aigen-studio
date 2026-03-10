@@ -1,16 +1,21 @@
+import re
+import time
 from typing import Any
 
 from aigen.common.llm_client import LLMClient
 from aigen.constants import MAX_TOKENS
 from aigen.models import GPTModel, Role, TemperaturePresets
 
-from openai import OpenAI
+import structlog
+from openai import OpenAI, RateLimitError
 from openai.types import Model
 from openai.types.chat import (
     ChatCompletionUserMessageParam,
     ChatCompletionSystemMessageParam,
     ChatCompletionAssistantMessageParam,
 )
+
+LOGGER = structlog.get_logger(__name__)
 
 
 class OpenAIClient(LLMClient):
@@ -35,6 +40,32 @@ class OpenAIClient(LLMClient):
         else:
             raise ValueError(f"Unknown role: {role}")
 
+    def _retry_delay_seconds(self, error: RateLimitError, attempt: int) -> float:
+        delay_seconds = min(0.5 * (2**attempt), 8.0)
+
+        response = getattr(error, "response", None)
+        headers = getattr(response, "headers", None)
+        if headers:
+            retry_after_ms = headers.get("retry-after-ms")
+            if retry_after_ms is not None:
+                try:
+                    delay_seconds = max(delay_seconds, float(retry_after_ms) / 1000.0)
+                except (TypeError, ValueError):
+                    pass
+            retry_after = headers.get("retry-after")
+            if retry_after is not None:
+                try:
+                    delay_seconds = max(delay_seconds, float(retry_after))
+                except (TypeError, ValueError):
+                    pass
+
+        message = str(error)
+        match = re.search(r"try again in (\d+)\s*ms", message, flags=re.IGNORECASE)
+        if match:
+            delay_seconds = max(delay_seconds, float(match.group(1)) / 1000.0)
+
+        return delay_seconds
+
     def generate(
         self, content: list[dict[str, Any]] | dict[str, Any] | str, **kwargs
     ) -> str | None:
@@ -54,10 +85,31 @@ class OpenAIClient(LLMClient):
             content = [content]
 
         formatted_messages = [self._format_message(msg) for msg in content]
-        response = self._client.chat.completions.create(
-            model=kwargs.get("model") or self.model or GPTModel.best().value,
-            messages=formatted_messages,
-            max_tokens=kwargs.get("max_tokens") or self._max_tokens or MAX_TOKENS,
-            temperature=kwargs.get("temperature", TemperaturePresets.GENERAL.value),
-        )
-        return response.choices[0].message.content
+        max_retries = int(kwargs.get("max_retries", 6))
+
+        for attempt in range(max_retries + 1):
+            try:
+                response = self._client.chat.completions.create(
+                    model=kwargs.get("model") or self.model or GPTModel.best().value,
+                    messages=formatted_messages,
+                    max_tokens=kwargs.get("max_tokens")
+                    or self._max_tokens
+                    or MAX_TOKENS,
+                    temperature=kwargs.get(
+                        "temperature", TemperaturePresets.GENERAL.value
+                    ),
+                )
+                return response.choices[0].message.content
+            except RateLimitError as error:
+                if attempt >= max_retries:
+                    raise
+                delay_seconds = self._retry_delay_seconds(error, attempt)
+                LOGGER.warning(
+                    "OpenAI rate limit reached, retrying",
+                    attempt=attempt + 1,
+                    max_retries=max_retries,
+                    wait_seconds=round(delay_seconds, 3),
+                )
+                time.sleep(delay_seconds)
+
+        return None

@@ -1,5 +1,7 @@
 from typing import Any
 
+import aigen.nodes  # noqa: F401  # Ensure node decorators populate NODE_REGISTRY.
+
 from aigen.common.node_registry import NODE_REGISTRY
 
 

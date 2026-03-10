@@ -17,7 +17,16 @@ class SetVariableNode(Node):
         params = self.format_params(context)
         name = params.get("name")
         value = params.get("value", "")
+        raw_if_missing = params.get("if_missing", False)
+        if isinstance(raw_if_missing, str):
+            if_missing = raw_if_missing.strip().lower() in {"1", "true", "yes", "on"}
+        else:
+            if_missing = bool(raw_if_missing)
+
         if not name:
             raise ValueError("Incorrect name. Name cannot be empty.")
+        if if_missing and name in context:
+            LOGGER.info("Skip set variable (already exists)", name=name)
+            return
         context[name] = value
         LOGGER.info("Set variable", name=name, value=value)
