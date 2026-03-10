@@ -1,4 +1,8 @@
+import pytest
+
 from aigen.models import GPTModel
+
+pytestmark = pytest.mark.unit
 
 
 def test_gpt_model_validation():

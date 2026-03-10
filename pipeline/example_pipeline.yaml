@@ -1,0 +1,116 @@
+- node: SetVariable
+  params:
+    name: user_prompt
+    value: "Describe each image in exactly 10 words."
+
+- node: SetVariable
+  params:
+    name: history_file
+    value: "./cache/integration/gpt_history.yaml"
+
+- node: SetVariable
+  params:
+    name: response_file
+    value: "./cache/integration/gpt_response.txt"
+
+- node: SetVariable
+  params:
+    name: response_ode_file
+    value: "./cache/integration/gpt_response_ode.txt"
+
+- node: SetVariable
+  params:
+    name: empty_history_yaml
+    value: "[]"
+
+- node: WriteFile
+  params:
+    file_path: ${history_file}
+    input: empty_history_yaml
+
+- node: GPTChat
+  params:
+    model: gpt-4o-mini
+    max_tokens: 120
+    prompt:
+      - type: text
+        content: user_prompt
+      - type: image
+        content: "examples/image_samples"
+        detailed: true
+    chat_history: gpt_history
+    output: gpt_response_from_var
+
+- node: PrintVariable
+  params:
+    input: gpt_history
+
+- node: GPTChat
+  params:
+    model: gpt-4o-mini
+    max_tokens: 120
+    prompt:
+      - type: text
+        content: user_prompt
+      - type: image
+        content: "examples/image_samples"
+        detailed: true
+    chat_history: ${history_file}
+    output: gpt_response_from_file
+
+- node: ReadFile
+  params:
+    filepath: ${history_file}
+    output: history_file_content
+
+- node: PrintVariable
+  params:
+    input: history_file_content
+
+- node: WriteFile
+  params:
+    file_path: ${response_file}
+    input: gpt_response_from_file
+
+- node: ReadFile
+  params:
+    filepath: ${response_file}
+    output: first_response_from_file
+
+- node: SetVariable
+  params:
+    name: modify_prompt
+    value: "Rewrite this in exactly 10 words and improve clarity: ${first_response_from_file}"
+
+- node: GPTChat
+  params:
+    model: gpt-4o-mini
+    max_tokens: 120
+    prompt:
+      - type: text
+        content: ${modify_prompt}
+    chat_history: ${history_file}
+    output: gpt_response_modified
+
+- node: PrintVariable
+  params:
+    input: gpt_response_modified
+
+- node: GPTChat
+  params:
+    model: gpt-4o-mini
+    max_tokens: 300
+    prompt:
+      - type: text
+        content: Write an ode to these picturs
+    chat_history: ${history_file}
+    output: gpt_response_ode
+
+- node: PrintVariable
+  params:
+    input: gpt_response_ode
+
+- node: WriteFile
+  params:
+    file_path: ${response_ode_file}
+    input: gpt_response_ode

@@ -1,4 +1,8 @@
+import pytest
+
 from aigen.nodes.copy_variable import CopyVariableNode
+
+pytestmark = pytest.mark.unit
 
 
 def test_copy_variable_node():

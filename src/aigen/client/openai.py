@@ -1,6 +1,7 @@
 from typing import Any
 
 from aigen.common.llm_client import LLMClient
+from aigen.constants import MAX_TOKENS
 from aigen.models import GPTModel, Role, TemperaturePresets
 
 from openai import OpenAI
@@ -13,7 +14,9 @@ from openai.types.chat import (
 
 
 class OpenAIClient(LLMClient):
-    def __init__(self, model: str, max_tokens: int) -> None:
+    def __init__(
+        self, *, model: str | None = None, max_tokens: int | None = None
+    ) -> None:
         super().__init__(model=model, max_tokens=max_tokens)
         self._client = OpenAI(api_key=getattr(self.config, "openai_api_key"))
 
@@ -54,7 +57,7 @@ class OpenAIClient(LLMClient):
         response = self._client.chat.completions.create(
             model=kwargs.get("model") or self.model or GPTModel.best().value,
             messages=formatted_messages,
-            max_tokens=kwargs.get("max_tokens") or self._max_tokens,
+            max_tokens=kwargs.get("max_tokens") or self._max_tokens or MAX_TOKENS,
             temperature=kwargs.get("temperature", TemperaturePresets.GENERAL.value),
         )
         return response.choices[0].message.content

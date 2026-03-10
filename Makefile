@@ -1,3 +1,5 @@
+.PHONY: create-env-file install format check-format unit-test integration-test test
+
 create-env-file:
 	@cp .envs/template.env .env
 
@@ -8,8 +10,13 @@ format:
 	uv run ruff format src tests
 	uv run ruff check --fix src tests
 
-check-format:
+quality-check:
 	uv run ruff check --no-fix src tests
 
-test:
-	PYTHONPATH=src uv run pytest
+unit-test:
+	PYTHONPATH=src uv run pytest -s tests/unit
+
+integration-test:
+	dotenv run env PYTHONPATH=src uv run pytest -s -m integration tests/integration
+
+test: unit-test integration-test

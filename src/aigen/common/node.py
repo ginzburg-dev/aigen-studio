@@ -5,13 +5,8 @@ from aigen.common.utils import replace_vars
 
 
 class Node(ABC):
-    def __init__(self, name: str, params: dict[str, Any]) -> None:
-        self._name: str = name
+    def __init__(self, params: dict[str, Any]) -> None:
         self._params: dict[str, Any] = params.copy()
-        
-    @property
-    def name(self) -> str:
-        return self._name
 
     @property
     def params(self) -> dict[str, Any]:
@@ -30,8 +25,7 @@ class Node(ABC):
             return [self._format_value(item, context) for item in value]
         if isinstance(value, dict):
             return {
-                key: self._format_value(item, context)
-                for key, item in value.items()
+                key: self._format_value(item, context) for key, item in value.items()
             }
         return value
 

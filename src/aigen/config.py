@@ -9,6 +9,7 @@ class AigenConfig(BaseSettings):
 
     model_config = SettingsConfigDict()
     cache_dir: str = Field(alias="AIGEN_CACHE_DIR", default="")
+    instructions_dir: str = Field(alias="AIGEN_INSTRUCTIONS_DIR", default="")
     openai_api_key: str = Field(alias="OPENAI_API_KEY", default="")
 
     def get_cache_dir(self) -> Path:
@@ -18,3 +19,8 @@ class AigenConfig(BaseSettings):
         else:
             temp_dir = Path(tempfile.gettempdir())
             return temp_dir / "aigen_cache"
+
+    def get_instructions_dir(self) -> Path | None:
+        if self.instructions_dir:
+            return Path(self.instructions_dir)
+        return None

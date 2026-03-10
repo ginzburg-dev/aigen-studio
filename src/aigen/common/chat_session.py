@@ -25,7 +25,7 @@ class ChatSession:
     def cache_dir_path(self) -> Path:
         """Path to the cache directory for this chat session."""
         return self._config.get_cache_dir() / self._id
-    
+
     @property
     def history(self) -> list[dict[str, Any]]:
         """Chat history as a list of message dictionaries."""
@@ -45,7 +45,7 @@ class ChatSession:
 
     def load_from_file(self, file_path: str) -> None:
         """Load chat history from a file."""
-        self._history = FileHandler.read_yaml(file_path)
+        self._history = FileHandler.read_yaml(file_path) or []
 
     def save_to_file(self, file_path: str) -> None:
         """Save chat history to a file."""

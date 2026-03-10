@@ -14,6 +14,12 @@ dependencies = [
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "-m 'not integration'"
+markers = [
+    "unit: fast deterministic tests with no network",
+    "integration: tests that hit external services or real infrastructure",
+]
 
 [dependency-groups]
 dev = [

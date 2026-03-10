@@ -12,10 +12,7 @@ class LLMClient(ABC):
     _config = AigenConfig()
 
     def __init__(
-            self,
-            *,
-            model: str | None = None,
-            max_tokens: int | None = None
+        self, *, model: str | None = None, max_tokens: int | None = None
     ) -> None:
         self._model: str | None = model
         self._client: Any | None = None

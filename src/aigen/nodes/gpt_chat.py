@@ -1,108 +1,146 @@
 from pathlib import Path
+from typing import Any
 
-from aigen.common import prompt
-from aigen.common.node import Node
-from aigen.common.chat_session import ChatSession
-from aigen.prompt.openai import OpenAIPrompt
 from aigen.client.openai import OpenAIClient
+from aigen.common.chat_session import ChatSession
 from aigen.common.file_handler import FileHandler
-from aigen.common.utils import replace_vars
-from typing import Any, Dict, List, Optional, Union
+from aigen.common.node import Node
+from aigen.common.node_registry import register_node
+from aigen.constants import MAX_TOKENS
+from aigen.models import GPTModel, Role
+from aigen.prompt.openai import OpenAIPrompt
 
 import structlog
 
 LOGGER = structlog.get_logger(__name__)
 
 
+@register_node("GPTChat")
 class GPTChatNode(Node):
-    def __init__(self, **params) -> None:
-        super().__init__("GPTChat", **params)
-        self._chat_sessions = ChatSession()
+    def __init__(self, params: dict[str, Any]) -> None:
+        super().__init__(params)
+        self._chat_session = ChatSession()
+
+    def _load_history(self, chat_history_key: str, context: dict[str, Any]) -> bool:
+        if Path(chat_history_key).is_file():
+            self._chat_session.load_from_file(chat_history_key)
+            LOGGER.info(
+                "Loaded GPT chat history from file",
+                history_key=chat_history_key,
+                history_size=len(self._chat_session.history),
+            )
+            return True
+
+        history = context.get(chat_history_key, [])
+        if not isinstance(history, list):
+            raise ValueError(f"History '{chat_history_key}' must be a list.")
+        self._chat_session.set_history(history)
+        LOGGER.info(
+            "Loaded GPT chat history from context variable",
+            history_key=chat_history_key,
+            history_size=len(self._chat_session.history),
+        )
+        return False
+
+    def _resolve_image_paths(self, image_path: str) -> list[str]:
+        path = Path(image_path)
+        if path.is_dir():
+            return FileHandler.search_images(image_path)
+        if path.is_file():
+            return [image_path]
+        return []
+
+    def _build_user_message(
+        self,
+        prompt_items: list[dict[str, Any]],
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
+        prompt = OpenAIPrompt(role=Role.USER.value)
+        for item in prompt_items:
+            item_type = item.get("type")
+            content = item.get("content")
+            if item_type == "image":
+                detailed = bool(item.get("detailed", True))
+                resolved_content = (
+                    context.get(content, content)
+                    if isinstance(content, str)
+                    else content
+                )
+                values = (
+                    resolved_content
+                    if isinstance(resolved_content, list)
+                    else [resolved_content]
+                )
+                for value in values:
+                    if not value:
+                        continue
+                    if not isinstance(value, str):
+                        raise ValueError("Wrong content format.")
+                    image_path = str(context.get(value, value))
+                    for resolved_path in self._resolve_image_paths(image_path):
+                        prompt.add_image(resolved_path, detailed=detailed)
+            elif item_type == "text":
+                values = content if isinstance(content, list) else [content]
+                for value in values:
+                    if not isinstance(value, str):
+                        raise ValueError("Wrong content format.")
+                    prompt.add_text(str(context.get(value, value)))
+            else:
+                raise ValueError(f"Unsupported prompt item type: {item_type}")
+
+        return {"role": Role.USER.value, "content": prompt.to_dict()}
 
     def run(self, context: dict[str, Any]) -> None:
         params = self.format_params(context)
 
-        client = OpenAIClient()
-        chat_history_key = params.get("input")
-        model = params.get("model")
-        model = params.get("temperature")
-        max_tokens = params.get("max_tokens")
-        prompt = params.get("prompt", [])
         output = params.get("output")
         if not output:
             raise ValueError("Output is empty.")
-        
+
+        chat_history_key = params.get("chat_history") or params.get("input")
+        history_from_file = False
         if chat_history_key:
-            if Path(chat_history_key).exists():
-                self._chat_sessions.load_from_file(chat_history_key)
+            history_from_file = self._load_history(str(chat_history_key), context)
+
+        prompt_items = params.get("prompt", [])
+        if not isinstance(prompt_items, list):
+            raise ValueError("Prompt must be a list.")
+        user_message = self._build_user_message(prompt_items, context)
+        self._chat_session.add_dict(user_message)
+
+        model = params.get("model") or GPTModel.best().value
+        max_tokens = int(params.get("max_tokens", MAX_TOKENS))
+        client = OpenAIClient(model=model, max_tokens=max_tokens)
+
+        response = client.generate(
+            content=self._chat_session.history,
+            model=model,
+            max_tokens=max_tokens,
+            temperature=params.get("temperature"),
+        )
+        if response is None:
+            raise ValueError("Model returned empty response.")
+
+        LOGGER.info("GPTChat response received", response_chars=len(str(response)))
+
+        self._chat_session.add_dict(
+            {"role": Role.ASSISTANT.value, "content": str(response)}
+        )
+        context[str(output)] = str(response)
+
+        if chat_history_key:
+            chat_history_key = str(chat_history_key)
+            if history_from_file:
+                self._chat_session.save_to_file(chat_history_key)
                 LOGGER.info(
-                    "Load GPTChat history from file",
-                    filename=chat_history_key
+                    "Saved GPT chat history to file",
+                    history_key=chat_history_key,
+                    history_size=len(self._chat_session.history),
                 )
             else:
-                if chat_history_key not in context:
-                    context[chat_history_key] = []
-                chat_history = context[chat_history_key]
-                self._chat_sessions.set_history(chat_history)
-
-        def _resolve_image_paths(image_path: str) -> list[str]:
-            images = []
-            if Path(image_path).is_dir():
-                images = FileHandler.search_images(image_path)
-            elif Path(image_path).is_file():
-                images = [image_path]
-            return images
-
-        _prompt = OpenAIPrompt()
-        for item in prompt:
-            type = item.get("type")
-            content = item.get("content")
-            if type == "image":
-                detailed: bool = item.get("detailed", True)
-                images = []
-                if isinstance(content, str):
-                    image_path = context[content] if content in context else content
-                    images = _resolve_image_paths(image_path)
-                elif isinstance(content, list):
-                    for i in content:
-                        if isinstance(i, str):
-                            image_path = context[i] if i in context else i
-                            images = _resolve_image_paths(image_path)
-                        else:
-                            raise ValueError("Wrong content format.")
-                else:
-                    raise ValueError("Wrong content format.")
-                for i in images:
-                    _prompt.add_image(i, detailed=detailed)
-
-            if type == "text":
-                if isinstance(content, str):
-                    text = context[content] if content in context else content
-                    _prompt.add_text(text)
-                elif isinstance(content, list):
-                    for i in content:
-                        if isinstance(i, str):
-                            i = replace_vars(i, context)
-                            text = context[i] if i in context else i
-                            _prompt.add_text(text)
-                        else:
-                            raise ValueError("Wrong content format.")
-                else:
-                    raise ValueError("Wrong content format.")
-
-        def _resolve_temperature(temperature: str | int):
-            if isinstance
-        response = client.generate(
-            content=self._chat_sessions.history + _prompt.to_dict(),
-            max_tokens=max_tokens,
-            temperature=)
-        
-        context[chat_history] = chat.history.data
-
-        if mode == 'append':
-            if output not in context:
-                context[output] = []
-            context[output].append(response)
-        else:
-            context[output] = response
-
+                context[chat_history_key] = list(self._chat_session.history)
+                LOGGER.info(
+                    "Saved GPT chat history to context variable",
+                    history_key=chat_history_key,
+                    history_size=len(self._chat_session.history),
+                )

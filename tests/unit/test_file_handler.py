@@ -1,4 +1,8 @@
+import pytest
+
 from aigen.common.file_handler import FileHandler
+
+pytestmark = pytest.mark.unit
 
 
 def test_file_handler():
