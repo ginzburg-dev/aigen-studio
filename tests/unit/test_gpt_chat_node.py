@@ -113,3 +113,28 @@ def test_gpt_chat_node_skips_empty_image_list(monkeypatch):
     first_msg = sent[0]
     assert first_msg["role"] == "user"
     assert first_msg["content"] == [{"type": "text", "text": "hello"}]
+
+
+def test_gpt_chat_node_resolves_deferred_template_text(monkeypatch):
+    monkeypatch.setattr("aigen.nodes.gpt_chat.OpenAIClient", StubOpenAIClient)
+
+    params = {
+        "prompt": [{"type": "text", "content": "prompt_description"}],
+        "chat_history": "chat_buffer",
+        "output": "answer",
+    }
+    context = {
+        "image_critique": "moody blue mountains at sunset",
+        "prompt_description": "Using critique: ${image_critique}",
+    }
+
+    node = GPTChatNode(params)
+    node.run(context)
+
+    sent = StubOpenAIClient.last_content
+    assert sent is not None
+    first_msg = sent[0]
+    assert first_msg["role"] == "user"
+    assert first_msg["content"] == [
+        {"type": "text", "text": "Using critique: moody blue mountains at sunset"}
+    ]

@@ -6,11 +6,11 @@ __pycache__/
 
 *.so
 
-cache/*
+# Local generated cache
+/cache/
 
 .Python
 env/
-cache/
 venv/
 ENV/
 env.bak/

@@ -6,6 +6,7 @@ from aigen.common.chat_session import ChatSession
 from aigen.common.file_handler import FileHandler
 from aigen.common.node import Node
 from aigen.common.node_registry import register_node
+from aigen.common.utils import replace_vars
 from aigen.constants import MAX_TOKENS
 from aigen.models import GPTModel, Role
 from aigen.prompt.openai import OpenAIPrompt
@@ -76,7 +77,7 @@ class GPTChatNode(Node):
                         continue
                     if not isinstance(value, str):
                         raise ValueError("Wrong content format.")
-                    image_path = str(context.get(value, value))
+                    image_path = replace_vars(str(context.get(value, value)), context)
                     for resolved_path in self._resolve_image_paths(image_path):
                         prompt.add_image(resolved_path, detailed=detailed)
             elif item_type == "text":
@@ -84,7 +85,10 @@ class GPTChatNode(Node):
                 for value in values:
                     if not isinstance(value, str):
                         raise ValueError("Wrong content format.")
-                    prompt.add_text(str(context.get(value, value)))
+                    resolved_text = replace_vars(
+                        str(context.get(value, value)), context
+                    )
+                    prompt.add_text(resolved_text)
             else:
                 raise ValueError(f"Unsupported prompt item type: {item_type}")
 

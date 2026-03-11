@@ -97,6 +97,8 @@ def main() -> None:
             raise ValueError("Article context is missing 'article_path'.")
 
         generation_dir = reserve_generation_dir(str(article_path))
+        LOGGER.info("Output dir resolved", output=generation_dir)
+
         context["generation_dir"] = str(generation_dir)
         context["generation_version"] = generation_dir.name
 

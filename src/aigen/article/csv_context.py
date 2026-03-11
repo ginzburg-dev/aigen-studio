@@ -73,7 +73,13 @@ def read_article_contexts_from_csv(
             if not article_dir.is_absolute():
                 by_cwd = (Path.cwd() / article_dir).resolve()
                 by_csv = (csv_file.parent / article_dir).resolve()
-                article_dir = by_cwd if by_cwd.exists() else by_csv
+                if by_cwd.exists():
+                    article_dir = by_cwd
+                elif by_csv.exists():
+                    article_dir = by_csv
+                else:
+                    # Default new/uncreated article paths to CWD, not CSV dir.
+                    article_dir = by_cwd
             else:
                 article_dir = article_dir.resolve()
 

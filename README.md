@@ -1,73 +1,225 @@
 # aigen-studio
 
-Config-driven AI content pipeline runner for repeatable generation and publishing workflows.
+Config-driven AI content pipeline runner for repeatable article generation and publishing workflows.
 
-## Node-Based Pipeline
+You define instructions (YAML steps) to run GPT-driven and rule-based processing in one pipeline: collect data, store it, reuse it, combine it, and generate final outputs.  
+It is built for template-based article production, but the same flow works for any structured text publishing workflow.
 
-- Define ordered node steps in YAML (`SetVariable`, `GPTChat`, `WriteFile`, etc.).
-- Feed article-level data from CSV rows into the same reusable pipeline.
-- Generate drafts, metadata, SEO fields, and HTML fragments in one run.
-- Render final HTML via template placeholders (`${var}`) from context.
-- Save outputs as versioned artifacts (`aigen/v001`, `v002`, ...).
+## Why Use It
 
-## Quick Start
+- Build an end-to-end pipeline for text operations.
+- Find a specific section in a page/template.
+- Copy or merge specific data into it.
+- Replace strings/placeholders.
+- Generate and format new content with LLM prompts.
+- Generate and format SEO/indexing metadata with LLM prompts.
+- Inject SEO/indexing metadata.
 
-```bash
-uv sync --dev
-```
+Use one run to move from source text/data to final HTML with all required markup.
+Reduce routine editing work in high-volume publishing workflows.
 
-Required tools:
+Example workflow real case:
+- Input: article source text + images
+- Output: ready-to-publish article page (content + metadata + formatting) in minutes
+- Typical impact for batch content teams: large throughput gains (for example, from `~3 to 27 of articles and marketing content per day`, depending on pipeline and review policy)
+
+## What It Is
+
+`aigen-studio` executes YAML pipelines over per-article CSV rows.
+
+A single run can:
+- read article config from CSV
+- resolve images, templates, and instruction files
+- call GPT nodes
+- transform/merge structured data in context
+- render HTML templates with `${var}` placeholders
+- write versioned outputs to `aigen/v001`, `v002`, ... per article
+
+## Requirements
+
 - Python `>=3.10`
 - [`uv`](https://docs.astral.sh/uv/)
-- `dotenv`
+- `dotenv` CLI (optional, only if you want `dotenv run ...`)
 
-Set env vars:
+## Install
+
+Install `uv` first (pick one):
 
 ```bash
-export OPENAI_API_KEY="..."
-export CONFIGS_ROOT_DIR="/path/to/artcabbage-article-gen-configs"
-# optional
-export AIGEN_CACHE_DIR="/path/to/cache"
+# macOS
+brew install uv
+
+# Linux/macOS (official installer)
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-**Article Generator Command**
+Optional: install `dotenv` CLI for `.env` execution:
 
 ```bash
-# Use Instructions column from CSV rows
-dotenv run uv run aigen-article-generator path/to/csv.csv
-
-# Use a default instructions file for rows that don't define Instructions
-dotenv run uv run aigen-article-generator -i path/to/instructions.yaml path/to/csv.csv
-
-# Same as above, long flag
-dotenv run uv run aigen-article-generator --instructions path/to/instructions.yaml path/to/csv.csv
+uv tool install python-dotenv
 ```
 
-Run tests:
+If you skip this, run commands with `uv run ...` directly (without `dotenv run`).
 
 ```bash
-PYTHONPATH=src uv run pytest -q tests/unit
+# 1) clone
+cd /path/to
+git clone <your-repo-url> aigen-studio
+cd aigen-studio
+
+# 2) install deps (choose one)
+uv sync --dev
+# or
+make install
 ```
 
 ## Environment Variables
 
-- `OPENAI_API_KEY`
-  - Required for OpenAI/GPT nodes.
-  - Default: empty.
-- `CONFIGS_ROOT_DIR`
-  - Optional.
-  - Default: empty.
-  - Used as root for relative config paths:
-    - CLI `instructions` argument
-    - CSV `Instructions`
-    - CSV `Template` / `HTML Template`
-- `AIGEN_CACHE_DIR`
-  - Optional.
-  - Default: system temp cache (`<tmp>/aigen_cache`).
+Only these are used:
+
+- `OPENAI_API_KEY` (required for `GPTChat`)
+- `CONFIGS_ROOT_DIR` (optional)
+- `AIGEN_CACHE_DIR` (optional)
+
+Optional convenience: create a local `.env` from template:
+
+```bash
+make create-env-file
+```
+
+Example:
+
+```bash
+export OPENAI_API_KEY="sk-..."
+# optional
+export CONFIGS_ROOT_DIR="/absolute/path/to/configs"
+export AIGEN_CACHE_DIR="/absolute/path/to/cache"
+```
+
+If you prefer `.env`:
+
+```bash
+# .env file in repo root
+OPENAI_API_KEY=sk-...
+CONFIGS_ROOT_DIR=/absolute/path/to/configs
+AIGEN_CACHE_DIR=/absolute/path/to/cache
+```
+
+Load from `.env` (optional):
+
+```bash
+dotenv run -- uv run aigen-article-generator examples/article_generator/articles.csv
+```
+
+## CLI
+
+Installed entrypoint:
+
+- `aigen-article-generator`
+
+Usage:
+
+```bash
+aigen-article-generator [--instructions <instructions.yaml>] <articles.csv>
+```
+
+Common forms:
+
+```bash
+# Per-row Instructions column in CSV
+dotenv run uv run aigen-article-generator path/to/articles.csv
+
+# Fallback instructions for rows that do not define Instructions
+dotenv run uv run aigen-article-generator --instructions path/to/instructions.yaml path/to/articles.csv
+
+# short flag
+dotenv run uv run aigen-article-generator -i path/to/instructions.yaml path/to/articles.csv
+```
+
+Without `dotenv`:
+
+```bash
+uv run aigen-article-generator path/to/articles.csv
+```
+
+## Full Example: Generate One Article (Step-by-Step)
+
+This repo includes a complete example in:
+- `examples/article_generator/articles.csv`
+- `examples/article_generator/example_instructions.yaml`
+- `examples/article_generator/example_html_template.html`
+- `examples/article_generator/article_example/images/`
+
+### Step 1: set API key
+
+```bash
+export OPENAI_API_KEY="sk-..."
+```
+
+### Step 2: run the generator with the example CSV
+
+```bash
+uv run aigen-article-generator examples/article_generator/articles.csv
+```
+
+Or with `.env`:
+
+```bash
+dotenv run uv run aigen-article-generator examples/article_generator/articles.csv
+```
+
+### Step 3: inspect outputs
+
+Each run creates the next version folder under article path:
+
+```bash
+ls -la examples/article_generator/article_example/aigen
+```
+
+Example output files:
+- `examples/article_generator/article_example/aigen/v00X/article.html`
+- `examples/article_generator/article_example/aigen/v00X/article_description.txt`
+
+### Step 4: rerun safely
+
+Run the same command again. A new folder (`v00X+1`) is created automatically.
+
+## CSV Format
+
+Current supported columns (header names are case/space/hyphen tolerant):
+
+- `Article` (required): article directory path
+- `Images`: image dir or image file path
+- `HTML Template`: HTML template path
+- `Instructions`: instructions YAML path
+- `Section`
+- `Article Section`
+- `Author Name`
+- `Author Type` (`Person` or `Organization`)
+- `Cover Image URL`
+- `Prompt Step 1`
+
+Example row:
+
+```csv
+Article,Images,HTML Template,Instructions,Section,Article Section,Author Name,Author Type,Cover Image URL,Prompt Step 1
+examples/article_generator/article_example,images,examples/article_generator/example_html_template.html,examples/article_generator/example_instructions.yaml,visual,Visual Art,Example Author,Person,https://example.com/cover.jpg,Describe these images as an art critic in 4 concise bullet points.
+```
+
+### Path Resolution Rules
+
+- `Article` relative path:
+  - use `CWD/<Article>` if exists
+  - else use `<CSV_DIR>/<Article>` if exists
+  - else default to `CWD/<Article>` (new dir creation case)
+- `Images` relative path: checks CWD, article dir, then CSV dir
+- `Instructions` and `HTML Template` relative path:
+  - if `CONFIGS_ROOT_DIR` is set, resolved from it
+  - otherwise resolved from CWD/article/csv depending on existence
 
 ## Pipeline Format
 
-Pipelines are YAML lists of steps.
+Pipelines are YAML lists of steps:
 
 ```yaml
 - node: SetVariable
@@ -80,12 +232,29 @@ Pipelines are YAML lists of steps.
     input: greeting
 ```
 
-## Node Parameters (All Nodes)
+Variables can reference context values via `${var}` in string params.
 
-### `SetVariable`
-- `name` (required): context key to set.
-- `value` (optional, default `""`): value to set.
-- `if_missing` (optional, default `false`): if true, do not overwrite existing key.
+## Node Reference
+
+Use these exact node names:
+
+- `SetVariable`
+- `CopyVariable`
+- `ReadFile`
+- `WriteFile`
+- `PrintVariable`
+- `GPTChat`
+- `ParseJSON`
+- `JsonToContext`
+- `ReplaceBetween`
+- `ResolveTemplateVars`
+
+### SetVariable
+
+Params:
+- `name` (required)
+- `value` (optional, default `""`)
+- `if_missing` (optional, default `false`)
 
 ```yaml
 - node: SetVariable
@@ -95,9 +264,11 @@ Pipelines are YAML lists of steps.
     if_missing: true
 ```
 
-### `CopyVariable`
-- `input` (required): source context key.
-- `output` (required): target context key.
+### CopyVariable
+
+Params:
+- `input` (required)
+- `output` (required)
 
 ```yaml
 - node: CopyVariable
@@ -106,45 +277,62 @@ Pipelines are YAML lists of steps.
     output: greeting_copy
 ```
 
-### `ReadFile`
-- `file_path` or `filepath` (required): file path to read.
-- `output` (required): context key to store file text.
+### ReadFile
+
+Params:
+- `file_path` or `filepath` (required)
+- `output` (required)
 
 ```yaml
 - node: ReadFile
   params:
-    file_path: "./cache/input.txt"
+    file_path: ./cache/input.txt
     output: loaded_text
 ```
 
-### `WriteFile`
-- `file_path` (required): output file path.
-- `input` (required): context key containing text to write.
+### WriteFile
+
+Params:
+- `file_path` (required)
+- `input` (required; key name in context)
 
 ```yaml
 - node: WriteFile
   params:
-    file_path: "./cache/output.txt"
+    file_path: ./cache/output.txt
     input: loaded_text
 ```
 
-### `PrintVariable`
-- `input` (required): context key to print.
+### PrintVariable
+
+Params:
+- `input` (required)
 
 ```yaml
 - node: PrintVariable
   params:
-    input: greeting
+    input: loaded_text
 ```
 
-### `GPTChat`
-- `output` (required): context key for model response text.
-- `prompt` (required): list of prompt items.
-- `chat_history` (optional): context key or file path for chat history.
-- `input` (optional): alias fallback for `chat_history`.
-- `model` (optional): model name, e.g. `gpt-4o-mini`.
-- `max_tokens` (optional): response max tokens.
-- `temperature` (optional, default `0.7`): generation temperature.
+### GPTChat
+
+Params:
+- `output` (required)
+- `prompt` (required; list of prompt items)
+- `model` (optional; e.g. `gpt-4o-mini`)
+- `max_tokens` (optional)
+- `temperature` (optional)
+- `chat_history` (optional; context key or file path)
+- `input` (optional alias fallback for `chat_history`)
+
+Prompt item types:
+- text:
+  - `type: text`
+  - `content: <string or [string,...]>`
+- image:
+  - `type: image`
+  - `content: <path key/string or [path,...]>`
+  - `detailed: <bool>` (optional; default `true`)
 
 ```yaml
 - node: GPTChat
@@ -158,194 +346,96 @@ Pipelines are YAML lists of steps.
       - type: image
         content: images_path
         detailed: true
-    chat_history: article_workflow_history
     output: gpt_response
 ```
 
-Prompt item formats:
-- Text item:
-  - `type: text`
-  - `content: <string or [string,...]>`
-- Image item:
-  - `type: image`
-  - `content: <path key/string or [path,...]>`
-  - `detailed: <bool>` (optional, default `true`)
+### ParseJSON
 
-### `ParseJSON`
-- `input` (required): context key containing JSON string.
-- `output` (optional, default `<input>_obj`): context key for parsed dict.
-- `normalize_keys` (optional, default `true`): normalize keys to snake_case.
+Params:
+- `input` (required)
+- `output` (optional; default `<input>_obj`)
+- `normalize_keys` (optional; default `true`)
 
 ```yaml
 - node: ParseJSON
   params:
     input: article_meta_json
-    output: article_meta_row
-    normalize_keys: true
+    output: article_meta_obj
 ```
 
-### `JsonToContext`
-- `input` (required): context key containing a dict to merge into root context.
+### JsonToContext
+
+Params:
+- `input` (required; dict in context)
 
 ```yaml
 - node: JsonToContext
   params:
-    input: article_meta_row
+    input: article_meta_obj
 ```
 
-### `ReplaceBetween`
-- `input` (required): source template string key.
-- `output` (optional, default same as `input`): output key.
-- `start_marker` (required): marker text.
-- `end_marker` (required): marker text.
-- `replacement` (required): context key or raw text used as replacement block.
+### ReplaceBetween
+
+Params:
+- `input` (required)
+- `output` (optional; defaults to `input`)
+- `start_marker` (required)
+- `end_marker` (required)
+- `replacement` (required; context key or raw text)
 
 ```yaml
 - node: ReplaceBetween
   params:
-    input: html_template
-    output: article_html_with_fragment
-    start_marker: "<!--Paste from here-->"
-    end_marker: "<!--Paste to here-->"
-    replacement: article_html_fragment
+    input: html_template_raw
+    output: html_template_with_body
+    start_marker: "<!-- ARTICLE_BODY_START -->"
+    end_marker: "<!-- ARTICLE_BODY_END -->"
+    replacement: article_draft_html
 ```
 
-### `ResolveTemplateVars`
-- `input` (required): template text key.
-- `output` (required): rendered text key.
-- `strict` (optional, default `false`): fail if unresolved `${var}` remains.
+### ResolveTemplateVars
+
+Params:
+- `input` (required)
+- `output` (required)
+- `strict` (optional; default `false`)
 
 ```yaml
 - node: ResolveTemplateVars
   params:
-    input: article_html_with_fragment
-    output: article_html
+    input: html_template_with_body
+    output: rendered_html
     strict: true
 ```
 
-## Usage Snippets
+## Python API Usage
 
-### 1) Variables + File IO
+You can also run pipelines directly from Python:
 
-```yaml
-- node: SetVariable
-  params:
-    name: source_text
-    value: "hello from pipeline"
+```python
+from aigen.common.file_handler import FileHandler
+from aigen.common.pipeline import process_actions
 
-- node: WriteFile
-  params:
-    file_path: "./cache/example.txt"
-    input: source_text
-
-- node: ReadFile
-  params:
-    file_path: "./cache/example.txt"
-    output: loaded_text
-
-- node: PrintVariable
-  params:
-    input: loaded_text
+context = {
+    "name": "world",
+}
+instructions = FileHandler.read_yaml("examples/article_generator/example_instructions.yaml")
+process_actions(context, instructions)
 ```
 
-### 2) GPTChat with `temperature`
-
-```yaml
-- node: SetVariable
-  params:
-    name: prompt_step_1
-    value: "Describe this image in exactly 10 words."
-
-- node: GPTChat
-  params:
-    model: gpt-4o-mini
-    max_tokens: 120
-    temperature: 0.3
-    prompt:
-      - type: text
-        content: prompt_step_1
-      - type: image
-        content: images_path
-        detailed: true
-    chat_history: article_workflow_history
-    output: gpt_response
-```
-
-### 3) Parse metadata JSON and expose keys to context
-
-```yaml
-- node: GPTChat
-  params:
-    model: gpt-4o-mini
-    max_tokens: 500
-    prompt:
-      - type: text
-        content: "Return JSON: {\"page_title\":\"...\",\"description\":\"...\"}"
-    output: article_meta_json
-
-- node: ParseJSON
-  params:
-    input: article_meta_json
-    output: article_meta_row
-
-- node: JsonToContext
-  params:
-    input: article_meta_row
-```
-
-### 4) Inject generated HTML fragment into template
-
-```yaml
-- node: ReadFile
-  params:
-    file_path: ${template_path}
-    output: html_template
-
-- node: ReplaceBetween
-  params:
-    input: html_template
-    output: article_html_with_fragment
-    start_marker: "<!--Paste from here-->"
-    end_marker: "<!--Paste to here-->"
-    replacement: article_html_fragment
-
-- node: ResolveTemplateVars
-  params:
-    input: article_html_with_fragment
-    output: article_html
-    strict: true
-
-- node: WriteFile
-  params:
-    file_path: ${html_output_path}
-    input: article_html
-```
-
-## Registered Node Names
-
-Use these exact `node:` values in YAML:
-
-- `SetVariable`
-- `CopyVariable`
-- `ReadFile`
-- `WriteFile`
-- `PrintVariable`
-- `GPTChat`
-- `ParseJSON`
-- `JsonToContext`
-- `ReplaceBetween`
-- `ResolveTemplateVars`
-
-## CLI
-
-Installed script:
-
-- `aigen-article-generator`
-
-Usage:
+## Tests
 
 ```bash
-aigen-article-generator [--instructions <instructions.yaml>] <articles.csv>
-aigen-article-generator path/to/csv.csv -i path/to/instructions.yaml
+# unit
+PYTHONPATH=src uv run pytest -q tests/unit
 
+# integration (if configured)
+PYTHONPATH=src uv run pytest -s -m integration tests/integration
+```
+
+Or use make:
+
+```bash
+make unit-test
+make integration-test
 ```
