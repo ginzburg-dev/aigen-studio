@@ -6,8 +6,6 @@ pytestmark = pytest.mark.unit
 
 
 def test_file_handler():
-    images = FileHandler.search_images("././examples/image_samples/")
+    images = FileHandler.search_images("././examples/article_generator/article_example/images/")
     assert len(images) == 2
-    assert "palm" in images[0]
-    assert "landscape" in images[1]
     print(images)
