@@ -23,4 +23,4 @@ integration-test:
 		PYTHONPATH=src uv run pytest -s -m integration tests/integration; \
 	fi
 
-test: unit-test integration-test
+test: unit-test
