@@ -33,4 +33,3 @@ def test_set_variable_if_missing_true_sets_when_missing():
     node.run(context)
 
     assert context["template_path"] == "default-template.htm"
-

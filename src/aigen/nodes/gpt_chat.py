@@ -121,7 +121,11 @@ class GPTChatNode(Node):
         if response is None:
             raise ValueError("Model returned empty response.")
 
-        LOGGER.info("GPTChat response received", response_chars=len(str(response)), response=str(response))
+        LOGGER.info(
+            "GPTChat response received",
+            response_chars=len(str(response)),
+            response=str(response),
+        )
 
         self._chat_session.add_dict(
             {"role": Role.ASSISTANT.value, "content": str(response)}

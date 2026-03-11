@@ -22,8 +22,8 @@ def test_parse_json_node_sets_context_variables():
 
     node.run(context)
 
-    assert context["article_meta"]["page_name"] == "lost-landscapes" # type: ignore
-    assert context["article_meta"]["remaining_images_alt"] == ["alt1", "alt2"] # type: ignore
+    assert context["article_meta"]["page_name"] == "lost-landscapes"  # type: ignore
+    assert context["article_meta"]["remaining_images_alt"] == ["alt1", "alt2"]  # type: ignore
     assert "page_title" not in context
     assert "description" not in context
     assert "remaining_images_alt_joined" not in context

@@ -1,4 +1,3 @@
-
 import pytest
 
 from aigen.client.openai import OpenAIClient

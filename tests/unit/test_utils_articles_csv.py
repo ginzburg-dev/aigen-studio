@@ -146,11 +146,11 @@ def test_read_article_contexts_from_csv_with_instructions_column_path(tmp_path):
         writer = csv.DictWriter(f, fieldnames=["Article Path", "Instructions"])
         writer.writeheader()
         writer.writerow(
-                {
-                    "Article Path": "article-005b",
-                    "Instructions": "custom_pipeline/artcabbage_article_html_pipeline.yaml",
-                }
-            )
+            {
+                "Article Path": "article-005b",
+                "Instructions": "custom_pipeline/artcabbage_article_html_pipeline.yaml",
+            }
+        )
 
     contexts = read_article_contexts_from_csv(str(csv_path))
     assert len(contexts) == 1
