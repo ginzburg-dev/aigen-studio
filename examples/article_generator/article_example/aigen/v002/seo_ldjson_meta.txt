@@ -1,0 +1,40 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "The Pixel Art Journey of a Contemporary Artist",
+  "author": {
+    "@type": "Person",
+    "name": "ArtCabbage"
+  },
+  "image": [
+    "https://example.com/image1.jpg",
+    "https://example.com/image2.jpg"
+  ],
+  "datePublished": "2023-10-01",
+  "articleSection": "visual",
+  "publisher": {
+    "@type": "Organization",
+    "name": "ArtCabbage",
+    "url": "https://www.artcabbage.com",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://artcabbage.com/assets/artcabbage_logo.png"
+    }
+  },
+  "description": "Explore the captivating world of a contemporary artist who masterfully blends pixel art with themes of nostalgia and nature, evoking emotions through simplicity and vibrant color."
+}
+</script>
+
+<meta property="og:title" content="The Pixel Art Journey of a Contemporary Artist">
+<meta property="og:description" content="Explore the captivating world of a contemporary artist who masterfully blends pixel art with themes of nostalgia and nature, evoking emotions through simplicity and vibrant color.">
+<meta property="og:image" content="https://example.com/image1.jpg">
+<meta property="og:url" content="https://artcabbage.com/artist-pixel-art-journey">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="ArtCabbage">
+<meta property="fb:app_id" content="195655606875833">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Pixel Art Journey of a Contemporary Artist">
+<meta name="twitter:description" content="Explore the captivating world of a contemporary artist who masterfully blends pixel art with themes of nostalgia and nature, evoking emotions through simplicity and vibrant color.">
+<meta name="twitter:image" content="https://example.com/image1.jpg">

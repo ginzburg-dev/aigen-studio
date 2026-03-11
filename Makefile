@@ -17,6 +17,10 @@ unit-test:
 	PYTHONPATH=src uv run pytest -s tests/unit
 
 integration-test:
-	dotenv run env PYTHONPATH=src uv run pytest -s -m integration tests/integration
+	@if command -v dotenv >/dev/null 2>&1; then \
+		dotenv run env PYTHONPATH=src uv run pytest -s -m integration tests/integration; \
+	else \
+		PYTHONPATH=src uv run pytest -s -m integration tests/integration; \
+	fi
 
 test: unit-test integration-test

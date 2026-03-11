@@ -1,0 +1,38 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Untitled Artist: Pixelated Landscapes That Capture Emotion",
+  "author": {
+    "@type": "Person",
+    "name": "ArtCabbage"
+  },
+  "image": [
+    "https://example.com/images/mountain_landscape.png",
+    "https://example.com/images/tropical_beach.png"
+  ],
+  "datePublished": "2023-10-01",
+  "articleSection": "visual",
+  "publisher": {
+    "@type": "Organization",
+    "name": "ArtCabbage",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://artcabbage.com/assets/artcabbage_logo.png"
+    }
+  },
+  "description": "Explore the enchanting world of a pixel art artist whose landscapes evoke nostalgia and emotional depth, celebrating the beauty of nature through minimalism."
+}
+</script>
+
+<meta property="og:title" content="Untitled Artist: Pixelated Landscapes That Capture Emotion">
+<meta property="og:description" content="Explore the enchanting world of a pixel art artist whose landscapes evoke nostalgia and emotional depth, celebrating the beauty of nature through minimalism.">
+<meta property="og:image" content="https://example.com/images/mountain_landscape.png">
+<meta property="og:image" content="https://example.com/images/tropical_beach.png">
+<meta property="og:url" content="https://artcabbage.com/pixel-art-artist-profile">
+<meta property="og:type" content="article">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Untitled Artist: Pixelated Landscapes That Capture Emotion">
+<meta name="twitter:description" content="Explore the enchanting world of a pixel art artist whose landscapes evoke nostalgia and emotional depth, celebrating the beauty of nature through minimalism.">
+<meta name="twitter:image" content="https://example.com/images/mountain_landscape.png">

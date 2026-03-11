@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${article_title}</title>
+
+    <meta name="description" content="${article_description}" />
+    <meta property="og:title" content="${article_title}" />
+    <meta property="og:description" content="${article_description}" />
+    <meta property="og:type" content="article" />
+  </head>
+
+  <body>
+    <main>
+      <section class="content">
+        <article>
+          <h1 class="article_heading">${article_title}</h1>
+          <time class="publishdate" itemprop="datePublished" content="${current_date}">${current_date_human}</time>
+          <p class="article_text">${article_description}</p>
+
+          <div itemprop="articleBody">
+<!-- ARTICLE_BODY_START -->
+<p class="article_text">Generated article body will be inserted here.</p>
+<!-- ARTICLE_BODY_END -->
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      <p>Copyright ${copyright_year}</p>
+    </footer>
+  </body>
+</html>

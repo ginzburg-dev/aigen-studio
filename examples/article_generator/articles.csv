@@ -1,0 +1,2 @@
+Article,Images,HTML Template,Instructions,Section,Article Section,Author Name,Author Type,Cover Image URL,Prompt Step 1
+examples/article_generator/article_example,examples/article_generator/article_example/images,examples/article_generator/example_html_template.html,examples/article_generator/example_instructions.yaml,visual,Visual Art,Example Author,Person,https://example.com/cover.jpg,Describe these images as an art critic in 4 concise bullet points.

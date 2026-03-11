@@ -1,0 +1,49 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "[Artist's Name]: Capturing Nature in Pixel Art",
+  "author": {
+    "@type": "Person",
+    "name": "ArtCabbage"
+  },
+  "image": [
+    "URL_TO_COVER_IMAGE",
+    "URL_TO_MOUNTAIN_LANDSCAPE_IMAGE",
+    "URL_TO_TROPICAL_BEACH_IMAGE"
+  ],
+  "datePublished": "2023-10-10",
+  "mainEntityOfPage": {
+    "@type": "WebSite",
+    "@id": "https://artcabbage.com/"
+  },
+  "articleSection": "visual",
+  "description": "Dive into the enchanting world of [Artist's Name] as we explore their pixel art, capturing vibrant landscapes that evoke nostalgia and the beauty of nature.",
+  "keywords": [
+    "ArtCabbage",
+    "Visual Art",
+    "[Artist's Name]",
+    "Mountain Landscape",
+    "Tropical Beach Scene",
+    "Pixel Art",
+    "Nature Art",
+    "Nostalgia",
+    "Exploration",
+    "Digital Art"
+  ]
+}
+</script>
+
+<meta property="og:site_name" content="ArtCabbage">
+<meta property="og:title" content="[Artist's Name]: Capturing Nature in Pixel Art">
+<meta property="og:description" content="Dive into the enchanting world of [Artist's Name] as we explore their pixel art, capturing vibrant landscapes that evoke nostalgia and the beauty of nature.">
+<meta property="og:image" content="URL_TO_COVER_IMAGE">
+<meta property="og:url" content="URL_TO_ARTICLE">
+<meta property="article:author" content="ArtCabbage">
+<meta property="article:section" content="visual">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="[Artist's Name]: Capturing Nature in Pixel Art">
+<meta name="twitter:description" content="Dive into the enchanting world of [Artist's Name] as we explore their pixel art, capturing vibrant landscapes that evoke nostalgia and the beauty of nature.">
+<meta name="twitter:image" content="URL_TO_COVER_IMAGE">
+<meta name="twitter:site" content="@ArtCabbage_mag">

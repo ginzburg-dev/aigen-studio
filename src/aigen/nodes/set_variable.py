@@ -29,4 +29,4 @@ class SetVariableNode(Node):
             LOGGER.info("Skip set variable (already exists)", name=name)
             return
         context[name] = value
-        LOGGER.info("Set variable", name=name, value=value)
+        LOGGER.info("Set variable", name=name, value=str(value)[0:50]+" ...")

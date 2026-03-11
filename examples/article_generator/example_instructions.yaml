@@ -1,0 +1,167 @@
+- node: SetVariable
+  params:
+    name: template_path
+    value: "examples/article_generator/example_html_template.html"
+    if_missing: true
+
+- node: SetVariable
+  params:
+    name: current_date
+    value: "2026-01-01"
+    if_missing: true
+
+- node: SetVariable
+  params:
+    name: current_date_human
+    value: "January 1, 2026"
+    if_missing: true
+
+- node: SetVariable
+  params:
+    name: copyright_year
+    value: "2026"
+    if_missing: true
+
+- node: SetVariable
+  params:
+    name: startup_prompt
+    value: ""
+    if_missing: true
+
+- node: SetVariable
+  params:
+    name: article_title
+    value: "Landscape Article Example"
+    if_missing: true
+
+- node: SetVariable
+  params:
+    name: prompt_step_1
+    value: "Describe these artworks as an art critic in 4 concise bullet points."
+    if_missing: true
+
+- node: SetVariable
+  params:
+    name: prompt_description
+    value: "Using this critique, write one strong 140-170 character meta description: ${image_critique}"
+
+- node: GPTChat
+  params:
+    model: gpt-4o-mini
+    temperature: 0.2
+    max_tokens: 500
+    prompt:
+      - type: text
+        content: prompt_step_1
+      - type: text
+        content: startup_prompt
+      - type: image
+        content: images_path
+        detailed: true
+    output: image_critique
+
+- node: CopyVariable
+  params:
+    input: image_critique
+    output: image_critique_copy
+
+- node: PrintVariable
+  params:
+    input: image_critique_copy
+
+- node: GPTChat
+  params:
+    model: gpt-4o-mini
+    temperature: 0.2
+    max_tokens: 180
+    prompt:
+      - type: text
+        content: prompt_description
+    output: article_description
+
+- node: PrintVariable
+  params:
+    input: article_description
+
+- node: SetVariable
+  params:
+    name: prompt_meta_json
+    value: |
+      Return ONLY valid JSON:
+      {
+        "article_title": "...",
+        "description_for_html": "..."
+      }
+      Use this as source:
+      - critique: ${image_critique_copy}
+      - description: ${article_description}
+
+- node: GPTChat
+  params:
+    model: gpt-4o-mini
+    temperature: 0.2
+    max_tokens: 240
+    prompt:
+      - type: text
+        content: prompt_meta_json
+    output: article_meta_json
+
+- node: ParseJSON
+  params:
+    input: article_meta_json
+    output: article_meta_obj
+
+- node: JsonToContext
+  params:
+    input: article_meta_obj
+
+- node: SetVariable
+  params:
+    name: prompt_body
+    value: |
+      Write the article body in HTML only.
+      Use this description as opening context: ${description_for_html}
+      Use this critique: ${image_critique_copy}
+      Rules:
+      - Return only body fragments like <p class="article_text">...</p> and optional <h2 class="subheading_article">...</h2>
+      - 500-700 words
+      - no markdown fences
+
+- node: GPTChat
+  params:
+    model: gpt-4o-mini
+    temperature: 0.6
+    max_tokens: 1700
+    prompt:
+      - type: text
+        content: prompt_body
+    output: article_draft_html
+
+- node: ReadFile
+  params:
+    filepath: "${template_path}"
+    output: html_template_raw
+
+- node: ReplaceBetween
+  params:
+    input: html_template_raw
+    output: html_template_with_body
+    start_marker: "<!-- ARTICLE_BODY_START -->"
+    end_marker: "<!-- ARTICLE_BODY_END -->"
+    replacement: article_draft_html
+
+- node: ResolveTemplateVars
+  params:
+    input: html_template_with_body
+    output: rendered_html
+    strict: true
+
+- node: WriteFile
+  params:
+    file_path: "${generation_dir}/article.html"
+    input: rendered_html
+
+- node: WriteFile
+  params:
+    file_path: "${generation_dir}/article_description.txt"
+    input: article_description
