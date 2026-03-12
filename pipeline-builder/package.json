@@ -1,0 +1,19 @@
+{
+  "name": "pipeline-builder",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev --workspace @pipeline-builder/frontend",
+    "dev:backend": "npm run dev --workspace @pipeline-builder/backend",
+    "build": "npm run build --workspaces",
+    "typecheck": "npm run typecheck --workspaces",
+    "install:command": "bash ./bin/install-command.sh"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

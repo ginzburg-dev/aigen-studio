@@ -1,0 +1,27 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    image: pipeline-builder-backend:${TAG:-latest}
+    env_file:
+      - .env
+    environment:
+      HOST: ${HOST:-0.0.0.0}
+      PORT: ${PORT:-3001}
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-3001}:3001"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+      args:
+        VITE_API_BASE_URL: /api
+    image: pipeline-builder-frontend:${TAG:-latest}
+    depends_on:
+      - backend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
